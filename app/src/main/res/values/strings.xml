@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Cam2PDF</string>
+    <string name="title_section1">Take Pictures</string>
+    <string name="title_section2">Review Images</string>
+    <string name="title_section3">Recently Uploaded</string>
+    <string name="action_settings">Settings</string>
+
+</resources>
