@@ -1,15 +1,10 @@
 package com.tylerrockwood.software.cam2pdf;
 
-import android.app.ActionBar;
 import android.content.Context;
-import android.database.DataSetObserver;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.FrameLayout;
-import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 
 /**
  * Created by rockwotj on 1/19/2015.
@@ -43,7 +38,7 @@ public class ImageAdapter extends BaseAdapter {
         if (convertView == null) {  // if it's not recycled, initialize some attributes
             thumbnailView = new ThumbnailView(mContext);
             //thumbnailView.setLayoutParams(new GridView.LayoutParams(85, 85));
-            thumbnailView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            thumbnailView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
             thumbnailView.setPadding(8, 8, 8, 8);
         } else {
             thumbnailView = (ThumbnailView) convertView;

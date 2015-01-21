@@ -44,7 +44,6 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-
     }
 
 
@@ -69,8 +68,8 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     @Override
     public void onPictureTaken(Bitmap image) {
         Toast.makeText(this, "Image received!", Toast.LENGTH_SHORT).show();
+        //Create an Async task to save the image
     }
-
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -96,7 +95,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
         @Override
         public int getCount() {
-            // Show 1 total pages.
+            // Show 2 total pages.
             return 2;
         }
 
