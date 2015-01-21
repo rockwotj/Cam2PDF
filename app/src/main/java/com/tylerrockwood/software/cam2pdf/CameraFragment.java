@@ -176,6 +176,7 @@ public class CameraFragment extends Fragment implements Camera.PictureCallback, 
             if (!cameraConfigured) {
                 Camera.Parameters parameters = camera.getParameters();
                 Camera.Size size = getOptimalPreviewSize(parameters.getSupportedPreviewSizes(), width, height);
+                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
                 camera.setDisplayOrientation(90);
                 if (size != null) {
                     parameters.setPreviewSize(size.width, size.height);

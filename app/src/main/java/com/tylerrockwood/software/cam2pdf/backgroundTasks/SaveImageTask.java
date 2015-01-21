@@ -7,7 +7,6 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 /**
  * Created by rockwotj on 1/21/2015.
@@ -16,33 +15,33 @@ public class SaveImageTask extends AsyncTask<Void, Void, Boolean> {
 
     private final Bitmap mImage;
     private final String mFilename;
+    private final String mAlbumName;
 
-    public SaveImageTask(Bitmap image, String filename) {
+    public SaveImageTask(Bitmap image, String filename, String albumName) {
         this.mImage = image;
         this.mFilename = filename;
+        this.mAlbumName = albumName;
     }
 
     @Override
     protected Boolean doInBackground(Void... voids) {
-
-
-        FileOutputStream out = null;
+        if (!isExternalStorageWritable()) return Boolean.FALSE;
+        // Get the dir to save it in
+        File myDir = getAlbumStorageDir(mAlbumName);
+        // Get the file to save it in
+        File file = new File(myDir, mFilename);
+        // If a file is already there, delete it
+        if (file.exists()) file.delete();
+        // Now save the file as a PNG (no loss compression)
         try {
-            out = new FileOutputStream(mFilename);
-            mImage.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
-            // PNG is a lossless format, the compression factor (100) is ignored
+            FileOutputStream out = new FileOutputStream(file);
+            mImage.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.flush();
+            out.close();
+
         } catch (Exception e) {
             e.printStackTrace();
             return Boolean.FALSE;
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return Boolean.FALSE;
-            }
         }
         return Boolean.TRUE;
     }
@@ -67,7 +66,6 @@ public class SaveImageTask extends AsyncTask<Void, Void, Boolean> {
         return false;
     }
 
-    /* Checks if external storage is available to at least read */
     private boolean isExternalStorageReadable() {
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state) ||

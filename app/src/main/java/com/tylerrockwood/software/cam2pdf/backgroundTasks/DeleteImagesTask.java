@@ -2,23 +2,14 @@ package com.tylerrockwood.software.cam2pdf.backgroundTasks;
 
 import android.os.AsyncTask;
 
-import java.util.List;
-
 /**
  * Created by rockwotj on 1/21/2015.
  */
-public class DeleteImagesTask extends AsyncTask<Void, Void, Void> {
-
-    private final List<String> mImagePaths;
-
-    public DeleteImagesTask(List<String> mImagePaths) {
-        this.mImagePaths = mImagePaths;
-    }
-
+public class DeleteImagesTask extends AsyncTask<String, Void, Void> {
 
     @Override
-    protected Void doInBackground(Void... strings) {
-        for (String path : mImagePaths) {
+    protected Void doInBackground(String... imagePaths) {
+        for (String path : imagePaths) {
             //Delete files
         }
         return null;

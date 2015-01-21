@@ -6,14 +6,17 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ImagesFragment extends Fragment {
+public class ImagesFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
+
+    private ImageAdapter mAdapter;
 
     public ImagesFragment() {
         // Required empty public constructor
@@ -25,10 +28,21 @@ public class ImagesFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_images, container, false);
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview);
-        //http://stackoverflow.com/questions/4916159/android-get-thumbnail-of-image-on-sd-card-given-uri-of-original-image
-        gridView.setAdapter(new ImageAdapter(getActivity()));
+        gridView.setOnItemClickListener(this);
+        gridView.setOnItemLongClickListener(this);
+        mAdapter = new ImageAdapter(getActivity());
+        gridView.setAdapter(mAdapter);
         return rootView;
     }
 
 
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int index, long l) {
+
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long l) {
+        return false;
+    }
 }
