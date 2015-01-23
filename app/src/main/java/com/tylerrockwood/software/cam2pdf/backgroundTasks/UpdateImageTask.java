@@ -18,7 +18,7 @@ public class UpdateImageTask extends AsyncTask<Void,Void,Void> {
 
     @Override
     protected Void doInBackground(Void... params) {
-        mImageFrag.imageEdited();
+        //mImageFrag.imageEdited();
 
         //but its "V"oid
         return null;

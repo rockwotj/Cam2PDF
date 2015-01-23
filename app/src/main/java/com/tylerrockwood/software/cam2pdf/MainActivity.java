@@ -1,6 +1,7 @@
 package com.tylerrockwood.software.cam2pdf;
 
-import android.content.Intent;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
 import android.os.AsyncTask;
@@ -11,11 +12,12 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.tylerrockwood.software.cam2pdf.backgroundTasks.SaveImageTask;
-import com.tylerrockwood.software.cam2pdf.backgroundTasks.UpdateImageTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +26,6 @@ import java.util.Locale;
 
 public class MainActivity extends ActionBarActivity implements CameraFragment.PictureCallback, ImagesFragment.ThumbnailsCallback, ViewPager.OnPageChangeListener {
 
-    public static final int EDIT_PHOTO = 101;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -76,7 +77,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_delete) {
             return true;
         }
 
@@ -97,17 +98,9 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
         mSaveImageTask.execute();
         mPhotoPaths.add(ImageUtils.getAlbumStorageDir(ALBUM_NAME) + "/" + fileName);
         Log.d("CDP", "Created Thumb");
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == EDIT_PHOTO && resultCode == RESULT_OK) {
-            Log.d("C2P", resultCode + "?" + RESULT_OK);
-            UpdateImageTask task = new UpdateImageTask(mSectionsPagerAdapter.mCurrentImagesFragment);
-            task.execute();
-        }
-        super.onActivityResult(requestCode, resultCode, data);
+        Toast texas = Toast.makeText(this, R.string.captured_image, Toast.LENGTH_SHORT);
+        texas.setGravity(Gravity.CENTER, 0, 0);
+        texas.show();
     }
 
     @Override
@@ -140,9 +133,21 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     @Override
     public void onBackPressed() {
         if (mPhotoPaths.size() > 0) {
-            // Display Dialog! if cancel don't call super
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.confirm_exit);
+            builder.setIcon(R.drawable.ic_alert);
+            builder.setMessage(R.string.exit_message);
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    MainActivity.super.onBackPressed();
+                }
+            });
+            builder.setNegativeButton(android.R.string.cancel, null);
+            builder.show();
+        } else {
+            super.onBackPressed();
         }
-        super.onBackPressed();
     }
 
     @Override

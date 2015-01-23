@@ -23,6 +23,7 @@ import java.util.List;
  */
 public class ImagesFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
+    private static final int EDIT_PHOTO = 101;
     private List<String> mPhotos;
     private ImageAdapter mAdapter;
     private List<Bitmap> mThumbnails;
@@ -53,13 +54,19 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
         Log.d("C2P", "Starting intent to: " + filepath);
         mCurrentEditedIndex = index;
         intent.setDataAndType(Uri.parse("file://" + filepath), "image/*");
-        startActivityForResult(intent, MainActivity.EDIT_PHOTO);
+        startActivityForResult(intent, EDIT_PHOTO);
     }
 
-    public void imageEdited() {
-        Log.d("C2P", "Getting most recent image from album dir");
-        File newest = getNewestFileInDirectory();
-        mAdapter.updateIndex(mCurrentEditedIndex, newest);
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("C2P", resultCode + "?" + requestCode);
+        if (requestCode == EDIT_PHOTO && resultCode == Activity.RESULT_OK) {
+            File newest = getNewestFileInDirectory();
+            mAdapter.updateIndex(mCurrentEditedIndex, newest);
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private File getNewestFileInDirectory() {

@@ -13,6 +13,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.List;
@@ -40,8 +41,13 @@ public class CameraFragment extends Fragment implements Camera.PictureCallback, 
         @Override
         public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
             //no-op
+            Log.d("C2P", "onSurfaceDestroyed");
+            if (camera != null) {
+                camera.stopPreview();
+            }
         }
     };
+    private RelativeLayout rootView;
 
     public interface PictureCallback {
         public void onPictureTaken(Bitmap image);
@@ -67,7 +73,8 @@ public class CameraFragment extends Fragment implements Camera.PictureCallback, 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_camera, container, false);
+        Log.d("C2P", "onCreateView");
+        rootView = (RelativeLayout) inflater.inflate(R.layout.fragment_camera, container, false);
         this.cameraView = (SurfaceView) rootView.findViewById(R.id.surfaceView);
         this.cameraPreview = cameraView.getHolder();
         cameraPreview.addCallback(surfaceCallback);
@@ -75,34 +82,46 @@ public class CameraFragment extends Fragment implements Camera.PictureCallback, 
         return rootView;
     }
 
+    private void stopPreviewAndFreeCamera() {
+        if (camera != null) {
+            camera.stopPreview();
+            camera.release();
+            camera = null;
+            rootView.removeView(cameraView);
+            cameraView = null;
+        }
+    }
+
     @Override
     public void onPause() {
         super.onPause();
-        if (inPreview) {
-            camera.stopPreview();
-        }
-        if (camera != null) {
-            camera.release();
-            camera = null;
-        }
-        inPreview = false;
-
+        stopPreviewAndFreeCamera();
     }
 
     @Override
     public void onResume() {
+        Log.d("C2P", "onResume");
         super.onResume();
         try {
-            camera = Camera.open();
+            if (camera == null) {
+                camera = Camera.open();
+            }
             camera.setDisplayOrientation(90);
         } catch (Exception e) {
-
+            Log.d("C2P", "Camera not opened!");
+        }
+        if (this.cameraView == null) {
+            this.cameraView = new SurfaceView(getActivity());
+            this.rootView.addView(cameraView, 0);
+            this.cameraPreview = cameraView.getHolder();
+            cameraPreview.addCallback(surfaceCallback);
         }
         startPreview();
     }
 
     private void startPreview() {
         if (cameraConfigured && camera != null) {
+            Log.d("C2P", "Starting Preview");
             camera.startPreview();
             inPreview = true;
         }
@@ -114,6 +133,7 @@ public class CameraFragment extends Fragment implements Camera.PictureCallback, 
             camera.takePicture(null, null, this);
         } else {
             // Should probably make some Toast...
+
         }
     }
 

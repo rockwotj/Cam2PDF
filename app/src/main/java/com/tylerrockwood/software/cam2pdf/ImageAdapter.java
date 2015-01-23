@@ -75,6 +75,6 @@ public class ImageAdapter extends BaseAdapter {
         mFilePaths.set(index, newest.getPath());
         Bitmap thumbnail = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(path),256,256);
         mThumbnails.set(index,thumbnail);
-
+        notifyDataSetChanged();
     }
 }
