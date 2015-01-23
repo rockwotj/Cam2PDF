@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
+import com.tylerrockwood.software.cam2pdf.ImageUtils;
+
 import java.io.File;
 import java.io.FileOutputStream;
 
@@ -13,6 +15,7 @@ import java.io.FileOutputStream;
  */
 public class SaveImageTask extends AsyncTask<Void, Void, Boolean> {
 
+    private static final int JPEG_QUALITY = 70;
     private final Bitmap mImage;
     private final String mFilename;
     private final String mAlbumName;
@@ -27,7 +30,7 @@ public class SaveImageTask extends AsyncTask<Void, Void, Boolean> {
     protected Boolean doInBackground(Void... voids) {
         if (!isExternalStorageWritable()) return Boolean.FALSE;
         // Get the dir to save it in
-        File myDir = getAlbumStorageDir(mAlbumName);
+        File myDir = ImageUtils.getAlbumStorageDir(mAlbumName);
         // Get the file to save it in
         File file = new File(myDir, mFilename);
         // If a file is already there, delete it
@@ -35,27 +38,16 @@ public class SaveImageTask extends AsyncTask<Void, Void, Boolean> {
         // Now save the file as a PNG (no loss compression)
         try {
             FileOutputStream out = new FileOutputStream(file);
-            mImage.compress(Bitmap.CompressFormat.PNG, 100, out);
+            mImage.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, out);
             out.flush();
             out.close();
-
         } catch (Exception e) {
             e.printStackTrace();
             return Boolean.FALSE;
         }
+        Log.d("C2P", "Finished saving JPG file");
+        mImage.recycle();
         return Boolean.TRUE;
-    }
-
-    /* For example, here's a method that creates a directory for a new photo album in the public pictures directory: */
-    private File getAlbumStorageDir(String albumName) {
-        // Get the directory for the user's public pictures directory.
-        File file = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), albumName);
-        if (!file.mkdirs()) {
-            Log.e("C2Pc", "Directory not created");
-        }
-
-        return file;
     }
 
     private boolean isExternalStorageWritable() {

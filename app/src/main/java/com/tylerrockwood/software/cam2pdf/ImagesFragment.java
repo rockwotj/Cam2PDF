@@ -1,13 +1,20 @@
 package com.tylerrockwood.software.cam2pdf;
 
 
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+
+import java.util.List;
 
 
 /**
@@ -15,11 +22,11 @@ import android.widget.GridView;
  */
 public class ImagesFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
-
+    private List<String> mPhotos;
     private ImageAdapter mAdapter;
+    private List<Bitmap> mThumbnails;
 
     public ImagesFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -30,7 +37,7 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview);
         gridView.setOnItemClickListener(this);
         gridView.setOnItemLongClickListener(this);
-        mAdapter = new ImageAdapter(getActivity());
+        mAdapter = new ImageAdapter(getActivity(), mPhotos, mThumbnails);
         gridView.setAdapter(mAdapter);
         return rootView;
     }
@@ -38,11 +45,39 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int index, long l) {
-
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_EDIT);
+        String filepath = mAdapter.getItem(index);
+        Log.d("C2P", "Starting intent to: " + filepath);
+        intent.setDataAndType(Uri.parse("file://" + filepath), "image/*");
+        startActivityForResult(intent, MainActivity.EDIT_PHOTO);
     }
 
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long l) {
         return false;
+    }
+
+    public void updateView() {
+        this.mAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            ThumbnailsCallback c = (ThumbnailsCallback) activity;
+            this.mPhotos = c.getPhotoPaths();
+            this.mThumbnails = c.getThumbnails();
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement ImagesFragment.ThumbnailsCallback");
+        }
+    }
+
+    public interface ThumbnailsCallback {
+        public List<String> getPhotoPaths();
+
+        public List<Bitmap> getThumbnails();
     }
 }

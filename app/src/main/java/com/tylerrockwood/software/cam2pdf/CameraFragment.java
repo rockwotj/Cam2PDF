@@ -3,6 +3,7 @@ package com.tylerrockwood.software.cam2pdf;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -44,6 +45,8 @@ public class CameraFragment extends Fragment implements Camera.PictureCallback, 
 
     public interface PictureCallback {
         public void onPictureTaken(Bitmap image);
+
+        public boolean canTakePicture();
     }
 
     private PictureCallback onPictureTakenListener;
@@ -107,15 +110,25 @@ public class CameraFragment extends Fragment implements Camera.PictureCallback, 
 
     @Override
     public void onClick(View view) {
-        camera.takePicture(null, null, this);
+        if (onPictureTakenListener.canTakePicture()) {
+            camera.takePicture(null, null, this);
+        } else {
+            // Should probably make some Toast...
+        }
     }
 
     @Override
     public void onPictureTaken(byte[] bytes, Camera camera) {
         Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
         // Background Task?
-        onPictureTakenListener.onPictureTaken(bmp);
+        onPictureTakenListener.onPictureTaken(rotateBitmap(bmp));
         startPreview();
+    }
+
+    public static Bitmap rotateBitmap(Bitmap source) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(90);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
     private Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {

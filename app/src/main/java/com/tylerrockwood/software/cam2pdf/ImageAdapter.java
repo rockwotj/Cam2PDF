@@ -1,10 +1,7 @@
 package com.tylerrockwood.software.cam2pdf;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.provider.MediaStore;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -18,26 +15,34 @@ import java.util.List;
 public class ImageAdapter extends BaseAdapter {
 
     private final Context mContext;
+    private final List<Bitmap> mThumbnails;
     private List<String> mFilePaths;
 
-    public ImageAdapter(Context context, List<String> filePaths) {
+    public ImageAdapter(Context context, List<String> filePaths, List<Bitmap> thumbnails) {
         mContext = context;
         mFilePaths = filePaths;
+        mThumbnails = thumbnails;
     }
 
     @Override
     public int getCount() {
-        return mThumbIds.length;
+        return mFilePaths.size();
     }
 
     @Override
-    public Object getItem(int i) {
+    public String getItem(int i) {
         return mFilePaths.get(i);
     }
 
     @Override
     public long getItemId(int i) {
         return 0;
+    }
+
+    public void deleteItem(int i) {
+        mFilePaths.remove(i);
+        mThumbnails.remove(i);
+        notifyDataSetChanged();
     }
 
     @Override
@@ -52,35 +57,11 @@ public class ImageAdapter extends BaseAdapter {
         } else {
             thumbnailView = (ThumbnailView) convertView;
         }
-        thumbnailView.setImageResource(mThumbIds[position]);
+        try {
+            thumbnailView.setImageBitmap(mThumbnails.get(position));
+        } catch (Exception e) {
+            thumbnailView.setImageResource(R.drawable.ic_default_thumbnail);
+        }
         return thumbnailView;
     }
-
-    public Bitmap getThumbnail(String path) throws Exception {
-        ContentResolver cr = mContext.getContentResolver();
-        Cursor ca = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new String[]{MediaStore.MediaColumns._ID}, MediaStore.MediaColumns.DATA + "=?", new String[]{path}, null);
-        if (ca != null && ca.moveToFirst()) {
-            int id = ca.getInt(ca.getColumnIndex(MediaStore.MediaColumns._ID));
-            ca.close();
-            return MediaStore.Images.Thumbnails.getThumbnail(cr, id, MediaStore.Images.Thumbnails.MICRO_KIND, null);
-        }
-        ca.close();
-        return null;
-
-    }
-
-    // references to our images
-    private Integer[] mThumbIds = {
-            R.drawable.sample_2, R.drawable.sample_3,
-            R.drawable.sample_4, R.drawable.sample_5,
-            R.drawable.sample_6, R.drawable.sample_7,
-            R.drawable.sample_0, R.drawable.sample_1,
-            R.drawable.sample_2, R.drawable.sample_3,
-            R.drawable.sample_4, R.drawable.sample_5,
-            R.drawable.sample_6, R.drawable.sample_7,
-            R.drawable.sample_0, R.drawable.sample_1,
-            R.drawable.sample_2, R.drawable.sample_3,
-            R.drawable.sample_4, R.drawable.sample_5,
-            R.drawable.sample_6, R.drawable.sample_7
-    };
 }
