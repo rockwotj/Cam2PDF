@@ -2,11 +2,15 @@ package com.tylerrockwood.software.cam2pdf;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -63,5 +67,14 @@ public class ImageAdapter extends BaseAdapter {
             thumbnailView.setImageResource(R.drawable.ic_default_thumbnail);
         }
         return thumbnailView;
+    }
+
+    public void updateIndex(int index, File newest) {
+        String path = newest.getPath();
+        Log.d("C2P", path);
+        mFilePaths.set(index, newest.getPath());
+        Bitmap thumbnail = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(path),256,256);
+        mThumbnails.set(index,thumbnail);
+
     }
 }

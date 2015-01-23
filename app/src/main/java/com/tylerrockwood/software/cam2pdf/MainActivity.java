@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.tylerrockwood.software.cam2pdf.backgroundTasks.SaveImageTask;
+import com.tylerrockwood.software.cam2pdf.backgroundTasks.UpdateImageTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,9 +102,10 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("C2P", resultCode + "?" + RESULT_OK);
-        if (requestCode == EDIT_PHOTO && resultCode == RESULT_OK && data != null) {
-
+        if (requestCode == EDIT_PHOTO && resultCode == RESULT_OK) {
+            Log.d("C2P", resultCode + "?" + RESULT_OK);
+            UpdateImageTask task = new UpdateImageTask(mSectionsPagerAdapter.mCurrentImagesFragment);
+            task.execute();
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

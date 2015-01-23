@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import java.io.File;
 import java.util.List;
 
 
@@ -25,6 +26,7 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
     private List<String> mPhotos;
     private ImageAdapter mAdapter;
     private List<Bitmap> mThumbnails;
+    private int mCurrentEditedIndex;
 
     public ImagesFragment() {
     }
@@ -49,9 +51,31 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
         intent.setAction(Intent.ACTION_EDIT);
         String filepath = mAdapter.getItem(index);
         Log.d("C2P", "Starting intent to: " + filepath);
+        mCurrentEditedIndex = index;
         intent.setDataAndType(Uri.parse("file://" + filepath), "image/*");
         startActivityForResult(intent, MainActivity.EDIT_PHOTO);
     }
+
+    public void imageEdited() {
+        Log.d("C2P", "Getting most recent image from album dir");
+        File newest = getNewestFileInDirectory();
+        mAdapter.updateIndex(mCurrentEditedIndex, newest);
+    }
+
+    private File getNewestFileInDirectory() {
+        File newestFile = null;
+
+        File dir = ImageUtils.getAlbumStorageDir(MainActivity.ALBUM_NAME);
+
+        for (File file : dir.listFiles()) {
+            if (newestFile == null || file.lastModified() > newestFile.lastModified()) {
+                newestFile = file;
+            }
+        }
+        Log.d("C2P", newestFile.getPath());
+        return newestFile;
+    }
+
 
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long l) {
