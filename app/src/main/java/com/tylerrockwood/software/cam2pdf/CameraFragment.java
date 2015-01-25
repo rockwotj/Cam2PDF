@@ -13,10 +13,13 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.List;
+
+import static java.lang.Thread.sleep;
 
 
 public class CameraFragment extends Fragment implements Camera.PictureCallback, View.OnClickListener {
@@ -129,16 +132,21 @@ public class CameraFragment extends Fragment implements Camera.PictureCallback, 
 
     @Override
     public void onClick(View view) {
+        ImageButton shutter = (ImageButton)getActivity().findViewById(R.id.camera_button);
+        shutter.setClickable(false);
         if (onPictureTakenListener.canTakePicture()) {
             camera.takePicture(null, null, this);
         } else {
             // Should probably make some Toast...
-
+            try{sleep(100);}catch(InterruptedException e){}
+            shutter.setClickable(true);
         }
     }
 
     @Override
     public void onPictureTaken(byte[] bytes, Camera camera) {
+        ImageButton shutter = (ImageButton)getActivity().findViewById(R.id.camera_button);
+        shutter.setClickable(true);
         Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
         // Background Task?
         onPictureTakenListener.onPictureTaken(rotateBitmap(bmp));

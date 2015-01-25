@@ -2,13 +2,19 @@ package com.tylerrockwood.software.cam2pdf;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.ActionMode;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -29,9 +35,6 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
     private List<Bitmap> mThumbnails;
     private int mCurrentEditedIndex;
 
-    public ImagesFragment() {
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -44,6 +47,8 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
         gridView.setAdapter(mAdapter);
         return rootView;
     }
+
+
 
 
     @Override
@@ -86,8 +91,21 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
 
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long l) {
-        return false;
+        final int i = index;
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.delete_selected);
+        builder.setMessage(R.string.delete_selected_message);
+        builder.setNegativeButton(android.R.string.cancel, null);
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                mAdapter.deleteItem(i);
+            }
+        });
+        builder.show();
+        return true;
     }
+
 
     public void updateView() {
         this.mAdapter.notifyDataSetChanged();

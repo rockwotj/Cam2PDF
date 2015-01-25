@@ -16,6 +16,9 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.tylerrockwood.software.cam2pdf.backgroundTasks.SaveImageTask;
@@ -85,6 +88,24 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
         int id = item.getItemId();
 
         if (id == R.id.action_delete) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.delete);
+            builder.setMessage(R.string.delete_message);
+            builder.setNegativeButton(android.R.string.cancel, null);
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if(mPhotoPaths.size() > 0) {
+                        ImageUtils.clearAlbumStorageDir(ALBUM_NAME);
+                        mPhotoPaths.clear();
+                        mThumbnails.clear();
+                       // ViewGroup vg = (ViewGroup)(findViewById(R.id.gridview));
+                       // vg.invalidate();
+                        Log.d("C2P", "Deleted temp image files");
+                    }
+                }
+            });
+            builder.show();
             return true;
         }
 
@@ -98,6 +119,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
     @Override
     public void onPictureTaken(Bitmap image) {
+        ImageButton shutter = (ImageButton)findViewById(R.id.camera_button);
         String fileName = getString(R.string.image_name, mPhotoPaths.size()) + ".jpg";
         // Create an Async task to save the image
         mSaveImageTask = new SaveImageTask(image, fileName, ALBUM_NAME);
@@ -108,6 +130,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
         Toast texas = Toast.makeText(this, R.string.captured_image, Toast.LENGTH_SHORT);
         texas.setGravity(Gravity.CENTER, 0, 0);
         texas.show();
+        shutter.setClickable(true);
     }
 
     @Override
