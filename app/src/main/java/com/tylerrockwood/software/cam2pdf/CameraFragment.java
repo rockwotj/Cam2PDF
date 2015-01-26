@@ -21,13 +21,15 @@ import java.util.List;
 
 import static java.lang.Thread.sleep;
 
-
+/**
+ * The fragment to view and take pictures of for the application.
+ * Created by rockwotj on 1/19/2015
+ */
 public class CameraFragment extends Fragment implements Camera.PictureCallback, View.OnClickListener {
 
     private Camera camera;
     private SurfaceView cameraView;
     private SurfaceHolder cameraPreview;
-    private boolean inPreview;
     private boolean cameraConfigured;
     SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
         public void surfaceCreated(SurfaceHolder holder) {
@@ -68,7 +70,6 @@ public class CameraFragment extends Fragment implements Camera.PictureCallback, 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        inPreview = false;
         cameraConfigured = false;
     }
 
@@ -126,26 +127,28 @@ public class CameraFragment extends Fragment implements Camera.PictureCallback, 
         if (cameraConfigured && camera != null) {
             Log.d("C2P", "Starting Preview");
             camera.startPreview();
-            inPreview = true;
         }
     }
 
     @Override
     public void onClick(View view) {
-        ImageButton shutter = (ImageButton)getActivity().findViewById(R.id.camera_button);
+        ImageButton shutter = (ImageButton) getActivity().findViewById(R.id.camera_button);
         shutter.setClickable(false);
         if (onPictureTakenListener.canTakePicture()) {
             camera.takePicture(null, null, this);
         } else {
             // Should probably make some Toast...
-            try{sleep(100);}catch(InterruptedException e){}
+            try {
+                sleep(100);
+            } catch (InterruptedException e) {
+            }
             shutter.setClickable(true);
         }
     }
 
     @Override
     public void onPictureTaken(byte[] bytes, Camera camera) {
-        ImageButton shutter = (ImageButton)getActivity().findViewById(R.id.camera_button);
+        ImageButton shutter = (ImageButton) getActivity().findViewById(R.id.camera_button);
         shutter.setClickable(true);
         Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
         // Background Task?

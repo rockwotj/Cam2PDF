@@ -27,7 +27,7 @@ import java.util.List;
 
 
 /**
- * A simple {@link Fragment} subclass.
+ * The fragment for viewing/editing/deleting images that have been taken by the camera.
  */
 public class ImagesFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 

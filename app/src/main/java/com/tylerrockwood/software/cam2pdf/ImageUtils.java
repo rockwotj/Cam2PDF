@@ -6,6 +6,7 @@ import android.util.Log;
 import java.io.File;
 
 /**
+ * Some utility methods for storing images.
  * Created by rockwotj on 1/21/2015.
  */
 public class ImageUtils {

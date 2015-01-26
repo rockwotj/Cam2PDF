@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 /**
+ * Background task that saves an image to disk
  * Created by rockwotj on 1/21/2015.
  */
 public class SaveImageTask extends AsyncTask<Void, Void, Boolean> {

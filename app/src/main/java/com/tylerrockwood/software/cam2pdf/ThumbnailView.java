@@ -9,11 +9,12 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 /**
+ * The view for thumbnails that can be checked within a grid view.
  * Created by rockwotj on 1/19/2015.
  */
 public class ThumbnailView extends FrameLayout {
 
-
+    private static final int PADDING = 8;
     private ImageView mThumbnail;
     private ImageView mCheckmark;
 
@@ -34,6 +35,7 @@ public class ThumbnailView extends FrameLayout {
 
     private void initialize(Context context) {
         setLayoutParams(new AbsListView.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        setPadding(PADDING, PADDING, PADDING, PADDING);
         mThumbnail = new ImageThumbnail(context);
         mThumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
         mCheckmark = new ImageThumbnail(context);

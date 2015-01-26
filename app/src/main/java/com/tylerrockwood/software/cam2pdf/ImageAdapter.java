@@ -14,10 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * The adapter for the grid view of images within the {@link com.tylerrockwood.software.cam2pdf.ImagesFragment}
  * Created by rockwotj on 1/19/2015.
  */
 public class ImageAdapter extends BaseAdapter {
 
+    private static final int THUMBNAIL_SIZE = 256;
     private final Context mContext;
     private final List<Bitmap> mThumbnails;
     private final List<String> mFilePaths;
@@ -54,11 +56,9 @@ public class ImageAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup viewGroup) {
-        //mSelected.add(false);
         ThumbnailView thumbnailView;
         if (convertView == null) {  // if it's not recycled, initialize some attributes
             thumbnailView = new ThumbnailView(mContext);
-            thumbnailView.setPadding(8, 8, 8, 8);
         } else {
             thumbnailView = (ThumbnailView) convertView;
         }
@@ -71,7 +71,7 @@ public class ImageAdapter extends BaseAdapter {
         String path = newest.getPath();
         Log.d("C2P", path);
         mFilePaths.set(index, newest.getPath());
-        Bitmap thumbnail = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(path), 256, 256);
+        Bitmap thumbnail = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(path), THUMBNAIL_SIZE, THUMBNAIL_SIZE);
         mThumbnails.set(index, thumbnail);
         notifyDataSetChanged();
     }
