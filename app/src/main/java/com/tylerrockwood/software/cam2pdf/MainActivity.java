@@ -16,8 +16,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -50,6 +48,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     private List<String> mPhotoPaths;
     private List<Bitmap> mThumbnails;
     private SaveImageTask mSaveImageTask;
+    private ActionBar mActionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,11 +67,12 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
         mViewPager.setOnPageChangeListener(this);
 
-        ActionBar ab = getSupportActionBar();
-        if (ab != null) {
-            ab.setTitle(null);
-            ab.setIcon(R.drawable.ic_logo);
-            ab.setDisplayShowHomeEnabled(true);
+        mActionBar = getSupportActionBar();
+        if (mActionBar != null) {
+            mActionBar.setTitle(null);
+            mActionBar.setIcon(R.drawable.ic_logo);
+            mActionBar.setDisplayShowHomeEnabled(true);
+            mActionBar.hide();
         }
     }
 
@@ -150,7 +150,10 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     @Override
     public void onPageSelected(int position) {
         if (position == 1) {
+            mActionBar.show();
             mSectionsPagerAdapter.updateCurrentFragment();
+        } else if (position == 0) {
+            mActionBar.hide();
         }
     }
 
