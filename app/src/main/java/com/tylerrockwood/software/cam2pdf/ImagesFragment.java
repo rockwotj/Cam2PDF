@@ -9,8 +9,9 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.view.ActionMode;
 import android.util.Log;
-import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -21,6 +22,9 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -34,10 +38,13 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
     private ImageAdapter mAdapter;
     private List<Bitmap> mThumbnails;
     private int mCurrentEditedIndex;
+    private ActionMode mActionMode = null;
+    private List<Integer> mCheckedItems;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        mCheckedItems = new ArrayList<Integer>();
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_images, container, false);
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview);
@@ -53,13 +60,32 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int index, long l) {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_EDIT);
-        String filepath = mAdapter.getItem(index);
-        Log.d("C2P", "Starting intent to: " + filepath);
-        mCurrentEditedIndex = index;
-        intent.setDataAndType(Uri.parse("file://" + filepath), "image/*");
-        startActivityForResult(intent, EDIT_PHOTO);
+        if(mActionMode != null){
+            if(mCheckedItems.contains(index)){
+                //change view of unchecked item
+                mCheckedItems.remove(Integer.valueOf(index));
+             }else {
+                //change view of checked item
+                mCheckedItems.add(index);
+            }
+            if(mCheckedItems.size() == 0) {
+                mActionMode.finish();
+                return;
+            }
+            String s = mCheckedItems.size() != 1 ? getString(R.string.delete_selected_format, mCheckedItems.size()) : getString(R.string.delete_selected_one);
+            mActionMode.setTitle(s);
+
+        }
+        else{
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_EDIT);
+            String filepath = mAdapter.getItem(index);
+            Log.d("C2P", "Starting intent to: " + filepath);
+            mCurrentEditedIndex = index;
+            intent.setDataAndType(Uri.parse("file://" + filepath), "image/*");
+            startActivityForResult(intent, EDIT_PHOTO);
+        }
+
     }
 
 
@@ -91,7 +117,7 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
 
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long l) {
-        final int i = index;
+        /*final int i = index;
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.delete_selected);
         builder.setMessage(R.string.delete_selected_message);
@@ -102,7 +128,14 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
                 mAdapter.deleteItem(i);
             }
         });
-        builder.show();
+        builder.show();*/
+
+        if (mActionMode != null) {
+            return true;
+        }
+        mActionMode = ((ActionBarActivity)getActivity()).startSupportActionMode(new ImagesFragmentActionModeCallback());
+        mActionMode.setTitle(R.string.delete_selected);
+        onItemClick(adapterView,view,index,l);
         return true;
     }
 
@@ -128,5 +161,46 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
         public List<String> getPhotoPaths();
 
         public List<Bitmap> getThumbnails();
+    }
+
+    private class ImagesFragmentActionModeCallback implements ActionMode.Callback {
+
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            mode.getMenuInflater().inflate(R.menu.context, menu);
+
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            if(item.getItemId() == R.id.action_delete_selected) {
+                //but why
+                Collections.sort(mCheckedItems);
+                Collections.reverse(mCheckedItems);
+                for (Integer i : mCheckedItems) {
+                    mAdapter.deleteItem(i);
+                }
+                updateView();
+                mCheckedItems.clear();
+                mActionMode.finish();
+                return true;
+            }
+
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+
+            mActionMode = null;
+
+        }
     }
 }

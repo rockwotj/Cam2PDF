@@ -99,8 +99,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                         ImageUtils.clearAlbumStorageDir(ALBUM_NAME);
                         mPhotoPaths.clear();
                         mThumbnails.clear();
-                       // ViewGroup vg = (ViewGroup)(findViewById(R.id.gridview));
-                       // vg.invalidate();
+                        mSectionsPagerAdapter.updateCurrentFragment();
                         Log.d("C2P", "Deleted temp image files");
                     }
                 }
