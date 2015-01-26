@@ -12,7 +12,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,7 +22,6 @@ import android.widget.GridView;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,8 +42,7 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mCheckedItems = new ArrayList<Integer>();
-        // Inflate the layout for this fragment
+        mCheckedItems = new ArrayList<>();
         View rootView = inflater.inflate(R.layout.fragment_images, container, false);
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview);
         gridView.setOnItemClickListener(this);
@@ -56,27 +53,22 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
     }
 
 
-
-
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int index, long l) {
-        if(mActionMode != null){
-            if(mCheckedItems.contains(index)){
-                //change view of unchecked item
-                mCheckedItems.remove(Integer.valueOf(index));
-                //mAdapter.setDisabled(Integer.valueOf(index));
-             }else {
-                //change view of checked item
+        if (mActionMode != null) {
+            boolean isSelecting = !mCheckedItems.contains(index);
+            if (isSelecting) {
                 mCheckedItems.add(index);
-                //mAdapter.setEnabled(index);
+            } else {
+                mCheckedItems.remove(Integer.valueOf(index));
             }
-            if(mCheckedItems.size() == 0) {
+            mAdapter.setChecked(index, isSelecting);
+            if (mCheckedItems.size() == 0) {
                 mActionMode.finish();
                 return;
             }
             String s = mCheckedItems.size() != 1 ? getString(R.string.delete_selected_format, mCheckedItems.size()) : getString(R.string.delete_selected_one);
             mActionMode.setTitle(s);
-
         } else {
             final int i = index;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -101,8 +93,7 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
         updateView();
     }
 
-    private void startEditIntent(int index)
-    {
+    private void startEditIntent(int index) {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_EDIT);
         String filepath = mAdapter.getItem(index);
@@ -114,7 +105,6 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("C2P", resultCode + "?" + requestCode);
         if (requestCode == EDIT_PHOTO && resultCode == Activity.RESULT_OK) {
             File newest = getNewestFileInDirectory();
             mAdapter.updateIndex(mCurrentEditedIndex, newest);
@@ -125,9 +115,7 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
 
     private File getNewestFileInDirectory() {
         File newestFile = null;
-
         File dir = ImageUtils.getAlbumStorageDir(MainActivity.ALBUM_NAME);
-
         for (File file : dir.listFiles()) {
             if (newestFile == null || file.lastModified() > newestFile.lastModified()) {
                 newestFile = file;
@@ -143,9 +131,9 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
         if (mActionMode != null) {
             return true;
         }
-        mActionMode = ((ActionBarActivity)getActivity()).startSupportActionMode(new ImagesFragmentActionModeCallback());
+        mActionMode = ((ActionBarActivity) getActivity()).startSupportActionMode(new ImagesFragmentActionModeCallback());
         mActionMode.setTitle(R.string.delete_selected);
-        onItemClick(adapterView,view,index,l);
+        onItemClick(adapterView, view, index, l);
         return true;
     }
 
@@ -190,15 +178,13 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            if(item.getItemId() == R.id.action_delete_selected) {
-                //but why
+            if (item.getItemId() == R.id.action_delete_selected) {
                 Collections.sort(mCheckedItems);
                 Collections.reverse(mCheckedItems);
                 for (Integer i : mCheckedItems) {
                     mAdapter.deleteItem(i);
                 }
                 updateView();
-                mCheckedItems.clear();
                 mActionMode.finish();
                 return true;
             }
@@ -208,7 +194,9 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
-
+            mAdapter.uncheckAll();
+            mAdapter.notifyDataSetChanged();
+            mCheckedItems.clear();
             mActionMode = null;
 
         }
