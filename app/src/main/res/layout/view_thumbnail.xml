@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.tylerrockwood.software.cam2pdf.ThumbnailView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp"
+    android:background="@android:color/holo_red_dark"
+    >
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/thumbNail"
+        android:scaleType="centerCrop"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/checked_background"
+        android:src="@drawable/ic_check"
+        android:scaleType="center"
+        android:id="@+id/checked"/>
+
+</com.tylerrockwood.software.cam2pdf.ThumbnailView>

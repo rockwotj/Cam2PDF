@@ -64,9 +64,11 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
             if(mCheckedItems.contains(index)){
                 //change view of unchecked item
                 mCheckedItems.remove(Integer.valueOf(index));
+                //mAdapter.setDisabled(Integer.valueOf(index));
              }else {
                 //change view of checked item
                 mCheckedItems.add(index);
+                //mAdapter.setEnabled(index);
             }
             if(mCheckedItems.size() == 0) {
                 mActionMode.finish();
@@ -75,19 +77,40 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
             String s = mCheckedItems.size() != 1 ? getString(R.string.delete_selected_format, mCheckedItems.size()) : getString(R.string.delete_selected_one);
             mActionMode.setTitle(s);
 
-        }
-        else{
-            Intent intent = new Intent();
-            intent.setAction(Intent.ACTION_EDIT);
-            String filepath = mAdapter.getItem(index);
-            Log.d("C2P", "Starting intent to: " + filepath);
-            mCurrentEditedIndex = index;
-            intent.setDataAndType(Uri.parse("file://" + filepath), "image/*");
-            startActivityForResult(intent, EDIT_PHOTO);
-        }
+        } else {
+            final int i = index;
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.delete_selected);
+            builder.setMessage(R.string.delete_selected_message);
+            builder.setNegativeButton(android.R.string.cancel, null);
+            builder.setPositiveButton(R.string.delete_image, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    mAdapter.deleteItem(i);
+                }
+            });
+            builder.setNeutralButton(R.string.edit, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    startEditIntent(i);
+                }
+            });
+            builder.show();
 
+        }
+        updateView();
     }
 
+    private void startEditIntent(int index)
+    {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_EDIT);
+        String filepath = mAdapter.getItem(index);
+        Log.d("C2P", "Starting intent to: " + filepath);
+        mCurrentEditedIndex = index;
+        intent.setDataAndType(Uri.parse("file://" + filepath), "image/*");
+        startActivityForResult(intent, EDIT_PHOTO);
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -117,19 +140,6 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
 
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long l) {
-        /*final int i = index;
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.delete_selected);
-        builder.setMessage(R.string.delete_selected_message);
-        builder.setNegativeButton(android.R.string.cancel, null);
-        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                mAdapter.deleteItem(i);
-            }
-        });
-        builder.show();*/
-
         if (mActionMode != null) {
             return true;
         }
