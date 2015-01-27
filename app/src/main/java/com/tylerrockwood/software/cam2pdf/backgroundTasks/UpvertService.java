@@ -91,7 +91,7 @@ public class UpvertService extends IntentService {
         Rectangle pageSize = document.getPageSize();
         float pageWidth = pageSize.getWidth() - (document.leftMargin() + document.rightMargin());
         float pageHeight = pageSize.getHeight();
-        //Loop through images and add them to the directory
+        //Loop through images and add them to the document
         for (String path : images) {
             Image image = Image.getInstance(path);
             image.scaleToFit(pageWidth, pageHeight);
@@ -142,7 +142,7 @@ public class UpvertService extends IntentService {
         public ProgressNotification(Context context) {
             mContext = context;
             mBuilder = new NotificationCompat.Builder(context);
-            mBuilder.setSmallIcon(android.R.drawable.stat_sys_upload);
+            mBuilder.setSmallIcon(R.drawable.ic_notification_logo);
             mBuilder.setContentTitle(mContext.getResources().getString(R.string.app_name));
             mBuilder.setContentText(mContext.getString(R.string.upload_notification_message));
             // Sets an ID for the notification
@@ -171,7 +171,6 @@ public class UpvertService extends IntentService {
             mBuilder.setContentText(mContext.getString(R.string.upload_notification_complete))
                     // Removes the progress bar
                     .setProgress(0, 0, false);
-            mBuilder.setSmallIcon(android.R.drawable.stat_sys_upload_done);
             mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
         }
     }
