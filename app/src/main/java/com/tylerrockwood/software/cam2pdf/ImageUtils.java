@@ -24,6 +24,7 @@ public class ImageUtils {
         File file = ImageUtils.getAlbumStorageDir(albumName);
         String[] myFiles;
         myFiles = file.list();
+        // Only Delete jpgs?
         for (int i = 0; i < myFiles.length; i++) {
             File myFile = new File(file, myFiles[i]);
             myFile.delete();

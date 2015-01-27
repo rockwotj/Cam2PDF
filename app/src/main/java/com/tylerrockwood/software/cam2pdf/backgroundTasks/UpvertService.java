@@ -33,8 +33,8 @@ public class UpvertService extends IntentService {
     private static final String EXTRA_FOLDER = "com.tylerrockwood.software.cam2pdf.backgroundTasks.extra.DRIVE_FOLDER";
     private static final String EXTRA_NAME = "com.tylerrockwood.software.cam2pdf.backgroundTasks.extra.PDF_NAME";
 
-    private static final int NOTIFICATION_ID = 001;
     private static final int DOCUMENT_MARGIN = 25;
+    private ProgressNotification mNotification;
 
     /**
      * Starts this service to perform the action with the given parameters. If
@@ -57,6 +57,7 @@ public class UpvertService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
+            mNotification = new ProgressNotification(this);
             final String[] images = intent.getStringArrayExtra(EXTRA_IMAGES);
             final String filename = intent.getStringExtra(EXTRA_NAME);
             final String folder = intent.getStringExtra(EXTRA_FOLDER);
@@ -64,19 +65,10 @@ public class UpvertService extends IntentService {
                 convertToPdf(images, filename);
             } catch (Exception e) {
                 Log.d("C2P", "ERROR: cannot export PDF", e);
-                // TODO: DISPLAY ERROR
+                mNotification.reportError();
+                return;
             }
             uploadToDrive(folder);
-            // TODO: EXTRACT & MAKE PROGRESS BAR
-            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
-            mBuilder.setSmallIcon(android.R.drawable.ic_dialog_info);
-            mBuilder.setContentTitle("My notification");
-            mBuilder.setContentText("Hello World!");
-            // Sets an ID for the notification
-            // Gets an instance of the NotificationManager service
-            NotificationManager mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            // Builds the notification and issues it.
-            mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
         }
     }
 
@@ -113,6 +105,70 @@ public class UpvertService extends IntentService {
 
 
     private void uploadToDrive(String driveFolder) {
-        // TODO
+        new Thread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        int incr;
+                        // Do the "lengthy" operation 20 times
+                        for (incr = 0; incr <= 100; incr += 5) {
+                            mNotification.setProgress(incr);
+                            // Sleeps the thread, simulating an operation
+                            // that takes time
+                            try {
+                                // Sleep for 5 seconds
+                                Thread.sleep(5 * 1000);
+                            } catch (InterruptedException e) {
+                                Log.d("C2P", "sleep failure");
+                            }
+                        }
+                        // When the loop is finished, updates the notification
+                        mNotification.finish();
+                    }
+                }
+                // Starts the thread by calling the run() method in its Runnable
+        ).start();
+    }
+
+    public static class ProgressNotification {
+
+        private static final int NOTIFICATION_ID = 001;
+
+        private NotificationManager mNotifyMgr;
+        private NotificationCompat.Builder mBuilder;
+
+        public ProgressNotification(Context context) {
+            mBuilder = new NotificationCompat.Builder(context);
+            mBuilder.setSmallIcon(android.R.drawable.stat_sys_upload);
+            mBuilder.setContentTitle("Uploading to Drive");
+            mBuilder.setContentText("Uploading PDF");
+            // Sets an ID for the notification
+            // Gets an instance of the NotificationManager service
+            mNotifyMgr = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+            // Builds the notification and issues it.
+            mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
+        }
+
+        public void setProgress(int percentComplete) {
+            // Sets the progress indicator to a max value, the
+            // current completion percentage, and "determinate"
+            // state
+            mBuilder.setProgress(100, percentComplete, false);
+            mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
+        }
+
+        public void reportError() {
+            mBuilder.setContentText("Error uploading to Drive")
+                    // Removes the progress bar
+                    .setProgress(0, 0, false);
+            mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
+        }
+
+        public void finish() {
+            mBuilder.setContentText("Upload complete")
+                    // Removes the progress bar
+                    .setProgress(0, 0, false);
+            mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
+        }
     }
 }
