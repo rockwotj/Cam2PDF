@@ -61,14 +61,15 @@ public class UpvertService extends IntentService {
             final String[] images = intent.getStringArrayExtra(EXTRA_IMAGES);
             final String filename = intent.getStringExtra(EXTRA_NAME);
             final String folder = intent.getStringExtra(EXTRA_FOLDER);
+            File pdf;
             try {
-                convertToPdf(images, filename);
+                pdf = convertToPdf(images, filename);
             } catch (Exception e) {
                 Log.d("C2P", "ERROR: cannot export PDF", e);
                 mNotification.reportError();
                 return;
             }
-            uploadToDrive(folder);
+            uploadToDrive(pdf, folder);
         }
     }
 
@@ -104,7 +105,8 @@ public class UpvertService extends IntentService {
     }
 
 
-    private void uploadToDrive(String driveFolder) {
+    private void uploadToDrive(File pdf, String driveFolder) {
+        // TODO
         new Thread(
                 new Runnable() {
                     @Override
@@ -130,21 +132,22 @@ public class UpvertService extends IntentService {
         ).start();
     }
 
-    public static class ProgressNotification {
+    private static class ProgressNotification {
 
         private static final int NOTIFICATION_ID = 001;
-
-        private NotificationManager mNotifyMgr;
-        private NotificationCompat.Builder mBuilder;
+        private final Context mContext;
+        private final NotificationManager mNotifyMgr;
+        private final NotificationCompat.Builder mBuilder;
 
         public ProgressNotification(Context context) {
+            mContext = context;
             mBuilder = new NotificationCompat.Builder(context);
             mBuilder.setSmallIcon(android.R.drawable.stat_sys_upload);
-            mBuilder.setContentTitle("Uploading to Drive");
-            mBuilder.setContentText("Uploading PDF");
+            mBuilder.setContentTitle(mContext.getResources().getString(R.string.app_name));
+            mBuilder.setContentText(mContext.getString(R.string.upload_notification_message));
             // Sets an ID for the notification
             // Gets an instance of the NotificationManager service
-            mNotifyMgr = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+            mNotifyMgr = (NotificationManager) mContext.getSystemService(NOTIFICATION_SERVICE);
             // Builds the notification and issues it.
             mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
         }
@@ -158,16 +161,17 @@ public class UpvertService extends IntentService {
         }
 
         public void reportError() {
-            mBuilder.setContentText("Error uploading to Drive")
+            mBuilder.setContentText(mContext.getString(R.string.upload_notification_error))
                     // Removes the progress bar
                     .setProgress(0, 0, false);
             mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
         }
 
         public void finish() {
-            mBuilder.setContentText("Upload complete")
+            mBuilder.setContentText(mContext.getString(R.string.upload_notification_complete))
                     // Removes the progress bar
                     .setProgress(0, 0, false);
+            mBuilder.setSmallIcon(android.R.drawable.stat_sys_upload_done);
             mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
         }
     }

@@ -18,4 +18,7 @@
     <string name="delete_selected_format">Delete %d Images</string>
     <string name="delete_selected_one">Delete 1 Image</string>
     <string name="file_subject">This PDF was created from Cam2PDF</string>
+    <string name="upload_notification_message">Uploading PDF</string>
+    <string name="upload_notification_error">Error uploading to Drive</string>
+    <string name="upload_notification_complete">Upload complete</string>
 </resources>
