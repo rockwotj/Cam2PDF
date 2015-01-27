@@ -20,6 +20,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.tylerrockwood.software.cam2pdf.backgroundTasks.UpvertService;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +31,7 @@ import java.util.List;
 /**
  * The fragment for viewing/editing/deleting images that have been taken by the camera.
  */
-public class ImagesFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+public class ImagesFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, View.OnClickListener {
 
     private static final int EDIT_PHOTO = 101;
     private List<String> mPhotos;
@@ -44,6 +46,7 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
                              Bundle savedInstanceState) {
         mCheckedItems = new ArrayList<>();
         View rootView = inflater.inflate(R.layout.fragment_images, container, false);
+        rootView.findViewById(R.id.upvert_button).setOnClickListener(this);
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview);
         gridView.setOnItemClickListener(this);
         gridView.setOnItemLongClickListener(this);
@@ -155,6 +158,13 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
         }
     }
 
+    @Override
+    public void onClick(View view) {
+        if (view.getId() == R.id.upvert_button) {
+            UpvertService.startService(getActivity(), mPhotos, "exported.pdf" ,"/");
+        }
+    }
+
     public interface ThumbnailsCallback {
         public List<String> getPhotoPaths();
 
@@ -188,7 +198,6 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
                 mActionMode.finish();
                 return true;
             }
-
             return false;
         }
 

@@ -95,7 +95,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
             builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    if(mPhotoPaths.size() > 0) {
+                    if (mPhotoPaths.size() > 0) {
                         ImageUtils.clearAlbumStorageDir(ALBUM_NAME);
                         mPhotoPaths.clear();
                         mThumbnails.clear();
@@ -118,7 +118,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
     @Override
     public void onPictureTaken(Bitmap image) {
-        ImageButton shutter = (ImageButton)findViewById(R.id.camera_button);
+        ImageButton shutter = (ImageButton) findViewById(R.id.camera_button);
         String fileName = getString(R.string.image_name, mPhotoPaths.size()) + ".jpg";
         // Create an Async task to save the image
         mSaveImageTask = new SaveImageTask(image, fileName, ALBUM_NAME);
