@@ -76,6 +76,15 @@ public class ImageAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void addItem(File file) {
+        String path = file.getPath();
+        Log.d("C2P", path);
+        mFilePaths.add(file.getPath());
+        Bitmap thumbnail = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(path), THUMBNAIL_SIZE, THUMBNAIL_SIZE);
+        mThumbnails.add(thumbnail);
+        notifyDataSetChanged();
+    }
+
 
     public void setChecked(int index, boolean enabled) {
         if (enabled) {

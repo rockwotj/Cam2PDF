@@ -5,9 +5,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
@@ -34,6 +36,7 @@ import java.util.List;
 public class ImagesFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, View.OnClickListener {
 
     private static final int EDIT_PHOTO = 101;
+    private static final int PICK_PHOTO = 100;
     private List<String> mPhotos;
     private ImageAdapter mAdapter;
     private List<Bitmap> mThumbnails;
@@ -55,6 +58,36 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
         return rootView;
     }
 
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_delete) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.delete);
+            builder.setMessage(R.string.delete_message);
+            builder.setNegativeButton(android.R.string.cancel, null);
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (mPhotos.size() > 0) {
+                        ImageUtils.clearAlbumStorageDir(MainActivity.ALBUM_NAME);
+                        mPhotos.clear();
+                        mThumbnails.clear();
+                        updateView();
+                        Log.d("C2P", "Deleted temp image files");
+                    }
+                }
+            });
+            builder.show();
+            return true;
+        } else if (id == R.id.action_pick) {
+            Log.d("C2P", "Should start intent for picker");
+            startPickIntent();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int index, long l) {
@@ -106,11 +139,30 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
         startActivityForResult(intent, EDIT_PHOTO);
     }
 
+    private void startPickIntent() {
+        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+        photoPickerIntent.setType("image/*");
+        startActivityForResult(photoPickerIntent, PICK_PHOTO);
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == EDIT_PHOTO && resultCode == Activity.RESULT_OK) {
             File newest = getNewestFileInDirectory();
             mAdapter.updateIndex(mCurrentEditedIndex, newest);
+            return;
+        } else if (requestCode == PICK_PHOTO && resultCode == Activity.RESULT_OK) {
+            Uri selectedImage = data.getData();
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+            Cursor cursor = getActivity().getContentResolver().query(
+                    selectedImage, filePathColumn, null, null, null);
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String filePath = cursor.getString(columnIndex);
+            cursor.close();
+            mAdapter.addItem(new File(filePath));
             return;
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -161,7 +213,8 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.upvert_button) {
-            UpvertService.startService(getActivity(), mPhotos, "exported.pdf" ,"/");
+            //TODO: Dialog for file name and folder on drive
+            UpvertService.startService(getActivity(), mPhotos, "exported.pdf", "/");
         }
     }
 
@@ -177,7 +230,6 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             mode.getMenuInflater().inflate(R.menu.context, menu);
-
             return true;
         }
 

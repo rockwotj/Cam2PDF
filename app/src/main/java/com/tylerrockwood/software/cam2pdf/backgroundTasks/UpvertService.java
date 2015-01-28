@@ -106,7 +106,7 @@ public class UpvertService extends IntentService {
 
 
     private void uploadToDrive(File pdf, String driveFolder) {
-        // TODO
+        // TODO: Replace this simulation with actual upload
         new Thread(
                 new Runnable() {
                     @Override
@@ -145,7 +145,6 @@ public class UpvertService extends IntentService {
             mBuilder.setSmallIcon(R.drawable.ic_notification_logo);
             mBuilder.setContentTitle(mContext.getResources().getString(R.string.app_name));
             mBuilder.setContentText(mContext.getString(R.string.upload_notification_message));
-            // Sets an ID for the notification
             // Gets an instance of the NotificationManager service
             mNotifyMgr = (NotificationManager) mContext.getSystemService(NOTIFICATION_SERVICE);
             // Builds the notification and issues it.

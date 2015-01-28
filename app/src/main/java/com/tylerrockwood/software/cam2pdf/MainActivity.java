@@ -85,30 +85,8 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_delete) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.delete);
-            builder.setMessage(R.string.delete_message);
-            builder.setNegativeButton(android.R.string.cancel, null);
-            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    if (mPhotoPaths.size() > 0) {
-                        ImageUtils.clearAlbumStorageDir(ALBUM_NAME);
-                        mPhotoPaths.clear();
-                        mThumbnails.clear();
-                        mSectionsPagerAdapter.updateCurrentFragment();
-                        Log.d("C2P", "Deleted temp image files");
-                    }
-                }
-            });
-            builder.show();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+        boolean result = this.mSectionsPagerAdapter.sendActionToCurrentFragment(item);
+        return result || super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -241,6 +219,13 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                     return getString(R.string.title_section3).toUpperCase(l);
             }
             return null;
+        }
+
+        public boolean sendActionToCurrentFragment(MenuItem item) {
+            if (mCurrentImagesFragment != null) {
+                return mCurrentImagesFragment.onOptionsItemSelected(item);
+            }
+            return false;
         }
     }
 

@@ -3,7 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
 
-<item
+    <item
+        android:id="@+id/action_pick"
+        android:icon="@drawable/ic_action_add"
+        android:title="@string/pick"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_delete"
         android:icon="@drawable/ic_rubbish_bin"
         android:title="@string/delete"
