@@ -72,7 +72,7 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     if (mPhotos.size() > 0) {
-                        ImageUtils.clearAlbumStorageDir(MainActivity.ALBUM_NAME);
+                        ImageUtils.clearStorageDir(MainActivity.ALBUM_NAME);
                         mPhotos.clear();
                         mThumbnails.clear();
                         updateView();

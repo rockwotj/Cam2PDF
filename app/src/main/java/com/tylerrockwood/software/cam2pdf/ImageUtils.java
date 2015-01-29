@@ -4,6 +4,7 @@ import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Some utility methods for storing images.
@@ -20,7 +21,20 @@ public class ImageUtils {
         return file;
     }
 
-    public static void clearAlbumStorageDir(String albumName) {
+    public static void noMediaScan(String albumName) {
+        File myDir = ImageUtils.getAlbumStorageDir(albumName);
+        // Get the file to save it in
+        File file = new File(myDir, ".nomedia");
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                Log.d("C2P", ".nomedia not created", e);
+            }
+        }
+    }
+
+    public static void clearStorageDir(String albumName) {
         File file = ImageUtils.getAlbumStorageDir(albumName);
         String[] myFiles;
         myFiles = file.list();

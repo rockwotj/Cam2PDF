@@ -54,7 +54,8 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ImageUtils.clearAlbumStorageDir(ALBUM_NAME);
+        ImageUtils.clearStorageDir(ALBUM_NAME);
+        ImageUtils.noMediaScan(ALBUM_NAME);
         mPhotoPaths = new ArrayList<>();
         mThumbnails = new ArrayList<>();
         // Create the adapter that will return a fragment for each of the three
@@ -162,7 +163,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        ImageUtils.clearAlbumStorageDir(ALBUM_NAME);
+        ImageUtils.clearStorageDir(ALBUM_NAME);
         mPhotoPaths.clear();
         mThumbnails.clear();
         Log.d("C2P", "Deleted temp image files");
