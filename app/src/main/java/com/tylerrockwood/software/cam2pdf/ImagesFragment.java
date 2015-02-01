@@ -22,7 +22,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import com.tylerrockwood.software.cam2pdf.backgroundTasks.UpvertService;
+import com.tylerrockwood.software.cam2pdf.backgroundTasks.UpvertDialog;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -124,7 +124,6 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
                 }
             });
             builder.show();
-
         }
         updateView();
     }
@@ -150,7 +149,6 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
         if (requestCode == EDIT_PHOTO && resultCode == Activity.RESULT_OK) {
             File newest = getNewestFileInDirectory();
             mAdapter.updateIndex(mCurrentEditedIndex, newest);
-            return;
         } else if (requestCode == PICK_PHOTO && resultCode == Activity.RESULT_OK) {
             Uri selectedImage = data.getData();
             String[] filePathColumn = {MediaStore.Images.Media.DATA};
@@ -163,9 +161,9 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
             String filePath = cursor.getString(columnIndex);
             cursor.close();
             mAdapter.addItem(new File(filePath));
-            return;
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
         }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private File getNewestFileInDirectory() {
@@ -213,8 +211,9 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.upvert_button) {
-            //TODO: Dialog for file name and folder on drive
-            UpvertService.startService(getActivity(), mPhotos, "exported.pdf", "/");
+            //TODO: Pick gmail user?
+            UpvertDialog dialog = UpvertDialog.createDialog(mPhotos);
+            dialog.show(getFragmentManager(), "");
         }
     }
 

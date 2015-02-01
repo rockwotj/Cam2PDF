@@ -58,13 +58,4 @@ public class SaveImageTask extends AsyncTask<Void, Void, Boolean> {
         }
         return false;
     }
-
-    private boolean isExternalStorageReadable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            return true;
-        }
-        return false;
-    }
 }

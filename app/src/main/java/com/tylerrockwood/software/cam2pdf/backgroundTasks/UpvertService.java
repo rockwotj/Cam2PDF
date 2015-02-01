@@ -20,7 +20,6 @@ import com.tylerrockwood.software.cam2pdf.R;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.List;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -42,9 +41,9 @@ public class UpvertService extends IntentService {
      *
      * @see IntentService
      */
-    public static void startService(Context context, List<String> images, String fileName, String driveFolder) {
+    public static void startService(Context context, String[] images, String fileName, String driveFolder) {
         Intent intent = new Intent(context, UpvertService.class);
-        intent.putExtra(EXTRA_IMAGES, images.toArray(new String[0]));
+        intent.putExtra(EXTRA_IMAGES, images);
         intent.putExtra(EXTRA_NAME, fileName);
         intent.putExtra(EXTRA_FOLDER, driveFolder);
         context.startService(intent);
@@ -145,6 +144,7 @@ public class UpvertService extends IntentService {
             mBuilder.setSmallIcon(R.drawable.ic_notification_logo);
             mBuilder.setContentTitle(mContext.getResources().getString(R.string.app_name));
             mBuilder.setContentText(mContext.getString(R.string.upload_notification_message));
+            mBuilder.setAutoCancel(false);
             // Gets an instance of the NotificationManager service
             mNotifyMgr = (NotificationManager) mContext.getSystemService(NOTIFICATION_SERVICE);
             // Builds the notification and issues it.

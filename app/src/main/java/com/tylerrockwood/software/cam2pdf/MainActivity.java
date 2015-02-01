@@ -65,7 +65,6 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-
         mViewPager.setOnPageChangeListener(this);
         mActionBar = getSupportActionBar();
         if (mActionBar != null) {
