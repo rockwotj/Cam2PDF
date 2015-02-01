@@ -22,8 +22,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import com.tylerrockwood.software.cam2pdf.backgroundTasks.UpvertDialog;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;

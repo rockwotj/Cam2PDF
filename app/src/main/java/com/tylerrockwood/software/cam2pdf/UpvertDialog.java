@@ -1,4 +1,4 @@
-package com.tylerrockwood.software.cam2pdf.backgroundTasks;
+package com.tylerrockwood.software.cam2pdf;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -13,7 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import com.tylerrockwood.software.cam2pdf.R;
+import com.tylerrockwood.software.cam2pdf.backgroundTasks.UpvertService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +24,6 @@ import java.util.List;
 public class UpvertDialog extends DialogFragment implements DialogInterface.OnClickListener, AdapterView.OnItemSelectedListener {
 
     private static final String PHOTOS = "PHOTOS";
-    private List<String> mPhotos;
     private Context mContext;
     private ArrayAdapter<String> mAdapter;
     private String mSelectedFolder;
