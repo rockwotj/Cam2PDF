@@ -2,6 +2,9 @@ package com.tylerrockwood.software.cam2pdf;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentSender;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
 import android.os.AsyncTask;
@@ -19,14 +22,32 @@ import android.view.MenuItem;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.drive.Drive;
+import com.google.android.gms.drive.DriveApi;
+import com.google.android.gms.drive.MetadataChangeSet;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.tylerrockwood.software.cam2pdf.backgroundTasks.SaveImageTask;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 
-public class MainActivity extends ActionBarActivity implements CameraFragment.PictureCallback, ImagesFragment.ThumbnailsCallback, ViewPager.OnPageChangeListener {
+public class MainActivity extends ActionBarActivity implements CameraFragment.PictureCallback, ImagesFragment.ThumbnailsCallback, ViewPager.OnPageChangeListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -45,14 +66,22 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
     public static final String ALBUM_NAME = "Cam2PDF";
 
+    private static final int RESOLVE_CONNECTION_REQUEST_CODE = 1;
+    private static final int REQUEST_CODE_CREATOR = 31415;
+    private static final int DOCUMENT_MARGIN = 25;
+    // public static final int
+
     private List<String> mPhotoPaths;
     private List<Bitmap> mThumbnails;
     private SaveImageTask mSaveImageTask;
     private ActionBar mActionBar;
+    private GoogleApiClient mGoogleApiClient;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         ImageUtils.clearStorageDir(ALBUM_NAME);
         ImageUtils.noMediaScan(ALBUM_NAME);
@@ -166,6 +195,110 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
         mPhotoPaths.clear();
         mThumbnails.clear();
         Log.d("C2P", "Deleted temp image files");
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    public void saveToDrive(){
+        final List<String> photos = mPhotoPaths;
+        Drive.DriveApi.newDriveContents(mGoogleApiClient).setResultCallback(new ResultCallback<DriveApi.DriveContentsResult>() {
+            @Override
+            public void onResult(DriveApi.DriveContentsResult driveContentsResult) {
+                try {
+                    String filename = "upverted.pdf";
+                    // Get output Directory
+                    File myDir = ImageUtils.getAlbumStorageDir(MainActivity.ALBUM_NAME);
+                    // Create the PDF and set some metadata
+                    Document document = new Document(PageSize.A4, DOCUMENT_MARGIN, DOCUMENT_MARGIN, DOCUMENT_MARGIN, DOCUMENT_MARGIN);
+                    Resources resources = getResources();
+                    document.addTitle(filename);
+                    document.addAuthor(resources.getString(R.string.app_name));
+                    document.addSubject(resources.getString(R.string.file_subject));
+                    // Open the file that we will write the pdf to.
+                    OutputStream outputStream = driveContentsResult.getDriveContents().getOutputStream();
+                    PdfWriter.getInstance(document, outputStream);
+                    document.open();
+                    // Get the document's size
+                    Rectangle pageSize = document.getPageSize();
+                    float pageWidth = pageSize.getWidth() - (document.leftMargin() + document.rightMargin());
+                    float pageHeight = pageSize.getHeight();
+                    //Loop through images and add them to the document
+                    for (String path : photos) {
+                        Image image = Image.getInstance(path);
+                        image.scaleToFit(pageWidth, pageHeight);
+                        document.add(image);
+                        document.newPage();
+                    }
+                    // Cleanup or not Google is too cool to cleanup
+                    //document.close();
+                    //outputStream.close();
+                    MetadataChangeSet metadataChangeSet = new MetadataChangeSet.Builder()
+                            .setMimeType("application/pdf").setTitle(filename).build();
+                    // Create an intent for the file chooser, and start it.
+                    IntentSender intentSender = Drive.DriveApi
+                            .newCreateFileActivityBuilder()
+                            .setInitialMetadata(metadataChangeSet)
+                            .setInitialDriveContents(driveContentsResult.getDriveContents())
+                            .build(mGoogleApiClient);
+                    try {
+                        startIntentSenderForResult(
+                                intentSender, REQUEST_CODE_CREATOR, null, 0, 0, 0);
+                    } catch (IntentSender.SendIntentException e) {
+                        Log.i("C2P", "Failed to launch file chooser.");
+                    }
+                } catch (Exception e) {
+                    Log.e("C2P", "unable to upvert", e);
+                    return;
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        if (connectionResult.hasResolution()) {
+            try {
+                connectionResult.startResolutionForResult(this, RESOLVE_CONNECTION_REQUEST_CODE);
+            } catch (IntentSender.SendIntentException e) {
+                // Unable to resolve, message user appropriately
+            }
+        } else {
+            GooglePlayServicesUtil.getErrorDialog(connectionResult.getErrorCode(), this, 0).show();
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        switch (requestCode) {
+            case RESOLVE_CONNECTION_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    mGoogleApiClient.connect();
+                }
+                break;
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addApi(Drive.API)
+                    .addScope(Drive.SCOPE_FILE)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .build();
+        }
+        mGoogleApiClient.connect();
     }
 
     /**

@@ -209,9 +209,7 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.upvert_button) {
-            //TODO: Pick gmail user?
-            UpvertDialog dialog = UpvertDialog.createDialog(mPhotos);
-            dialog.show(getFragmentManager(), "");
+            ((MainActivity) getActivity()).saveToDrive();
         }
     }
 
