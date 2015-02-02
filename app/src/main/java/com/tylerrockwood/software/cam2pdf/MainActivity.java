@@ -30,16 +30,12 @@ import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.tylerrockwood.software.cam2pdf.backgroundTasks.SaveImageTask;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +65,6 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     private static final int RESOLVE_CONNECTION_REQUEST_CODE = 1;
     private static final int REQUEST_CODE_CREATOR = 31415;
     private static final int DOCUMENT_MARGIN = 25;
-    // public static final int
 
     private List<String> mPhotoPaths;
     private List<Bitmap> mThumbnails;
@@ -207,15 +202,14 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
     }
 
-    public void saveToDrive(){
+    public void saveToDrive() {
         final List<String> photos = mPhotoPaths;
         Drive.DriveApi.newDriveContents(mGoogleApiClient).setResultCallback(new ResultCallback<DriveApi.DriveContentsResult>() {
             @Override
             public void onResult(DriveApi.DriveContentsResult driveContentsResult) {
                 try {
-                    String filename = "upverted.pdf";
+                    String filename = "exported.pdf";
                     // Get output Directory
-                    File myDir = ImageUtils.getAlbumStorageDir(MainActivity.ALBUM_NAME);
                     // Create the PDF and set some metadata
                     Document document = new Document(PageSize.A4, DOCUMENT_MARGIN, DOCUMENT_MARGIN, DOCUMENT_MARGIN, DOCUMENT_MARGIN);
                     Resources resources = getResources();
@@ -237,9 +231,10 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                         document.add(image);
                         document.newPage();
                     }
-                    // Cleanup or not Google is too cool to cleanup
-                    //document.close();
-                    //outputStream.close();
+                    // Cleanup
+                    document.close();
+                    outputStream.close();
+                    // Set Mime type
                     MetadataChangeSet metadataChangeSet = new MetadataChangeSet.Builder()
                             .setMimeType("application/pdf").setTitle(filename).build();
                     // Create an intent for the file chooser, and start it.
