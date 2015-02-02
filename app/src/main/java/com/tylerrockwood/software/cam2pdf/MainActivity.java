@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class MainActivity extends ActionBarActivity implements CameraFragment.PictureCallback, ImagesFragment.ThumbnailsCallback, ViewPager.OnPageChangeListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends ActionBarActivity implements CameraFragment.PictureCallback, ImagesFragment.ImagesCallback, ViewPager.OnPageChangeListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
 
     /**
@@ -71,6 +71,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     private SaveImageTask mSaveImageTask;
     private ActionBar mActionBar;
     private GoogleApiClient mGoogleApiClient;
+    private boolean mUploadingToDrive;
 
 
     @Override
@@ -194,7 +195,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
     @Override
     public void onConnected(Bundle bundle) {
-
+        mUploadingToDrive = false;
     }
 
     @Override
@@ -204,10 +205,12 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
     public void saveToDrive() {
         final List<String> photos = mPhotoPaths;
+        if (mUploadingToDrive) return;
         Drive.DriveApi.newDriveContents(mGoogleApiClient).setResultCallback(new ResultCallback<DriveApi.DriveContentsResult>() {
             @Override
             public void onResult(DriveApi.DriveContentsResult driveContentsResult) {
                 try {
+                    mUploadingToDrive = true;
                     String filename = "exported.pdf";
                     // Get output Directory
                     // Create the PDF and set some metadata
@@ -279,6 +282,8 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                     mGoogleApiClient.connect();
                 }
                 break;
+            case REQUEST_CODE_CREATOR:
+                mUploadingToDrive = false;
         }
     }
 

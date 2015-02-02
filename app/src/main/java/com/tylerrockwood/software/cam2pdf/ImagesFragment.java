@@ -41,6 +41,7 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
     private int mCurrentEditedIndex;
     private ActionMode mActionMode = null;
     private List<Integer> mCheckedItems;
+    private ImagesCallback mCallbacks;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -197,9 +198,9 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            ThumbnailsCallback c = (ThumbnailsCallback) activity;
-            this.mPhotos = c.getPhotoPaths();
-            this.mThumbnails = c.getThumbnails();
+            mCallbacks = (ImagesCallback) activity;
+            this.mPhotos = mCallbacks.getPhotoPaths();
+            this.mThumbnails = mCallbacks.getThumbnails();
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement ImagesFragment.ThumbnailsCallback");
@@ -209,14 +210,16 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.upvert_button) {
-            ((MainActivity) getActivity()).saveToDrive();
+            mCallbacks.saveToDrive();
         }
     }
 
-    public interface ThumbnailsCallback {
+    public interface ImagesCallback {
         public List<String> getPhotoPaths();
 
         public List<Bitmap> getThumbnails();
+
+        public void saveToDrive();
     }
 
     private class ImagesFragmentActionModeCallback implements ActionMode.Callback {
