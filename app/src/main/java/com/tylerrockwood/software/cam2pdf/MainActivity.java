@@ -1,6 +1,9 @@
 package com.tylerrockwood.software.cam2pdf;
 
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -28,6 +31,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
+import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Image;
@@ -72,6 +76,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     private ActionBar mActionBar;
     private GoogleApiClient mGoogleApiClient;
     private boolean mUploadingToDrive;
+    private Notification.Builder mBuilder;
 
 
     @Override
@@ -240,6 +245,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                     // Set Mime type
                     MetadataChangeSet metadataChangeSet = new MetadataChangeSet.Builder()
                             .setMimeType("application/pdf").setTitle(filename).build();
+
                     // Create an intent for the file chooser, and start it.
                     IntentSender intentSender = Drive.DriveApi
                             .newCreateFileActivityBuilder()
@@ -257,6 +263,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                     return;
                 }
             }
+
         });
     }
 
@@ -283,7 +290,17 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                 }
                 break;
             case REQUEST_CODE_CREATOR:
-                mUploadingToDrive = false;
+                if (resultCode == RESULT_OK) {
+                    DriveId uploadId = data.getParcelableExtra("response_drive_id");
+                    // uploadId.encodeToString();
+                    mUploadingToDrive = false;
+                    NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    mBuilder = new Notification.Builder(MainActivity.this);
+                    mBuilder.setContentTitle("Uploaded PDF to Drive")
+                            .setContentText("Cam2PDF")
+                            .setSmallIcon(R.drawable.ic_notification_logo);
+                    notificationManager.notify(1, mBuilder.build());
+                }
         }
     }
 

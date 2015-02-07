@@ -11,6 +11,10 @@
 
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <meta-data
+        android:name="com.google.android.gms.version"
+        android:value="@integer/google_play_services_version" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -25,13 +29,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <service
-            android:name=".backgroundTasks.UpvertService"
-            android:exported="false"></service>
     </application>
-
-    <meta-data android:name="com.google.android.gms.version"
-        android:value="@integer/google_play_services_version" />
 
 </manifest>
