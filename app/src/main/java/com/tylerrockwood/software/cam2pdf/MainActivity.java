@@ -1,12 +1,13 @@
 package com.tylerrockwood.software.cam2pdf;
 
+import android.accounts.AccountManager;
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationManager;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
@@ -25,14 +26,15 @@ import android.view.MenuItem;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.drive.Drive;
-import com.google.android.gms.drive.DriveApi;
-import com.google.android.gms.drive.DriveId;
-import com.google.android.gms.drive.MetadataChangeSet;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.http.FileContent;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.File;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
@@ -40,15 +42,21 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.tylerrockwood.software.cam2pdf.backgroundTasks.SaveImageTask;
 
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
 
-public class MainActivity extends ActionBarActivity implements CameraFragment.PictureCallback, ImagesFragment.ImagesCallback, ViewPager.OnPageChangeListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends ActionBarActivity implements CameraFragment.PictureCallback, ImagesFragment.ImagesCallback, ViewPager.OnPageChangeListener {
 
 
+    private static final String PREF_ACCOUNT_NAME = "PREFS";
+    private static final int REQUEST_ACCOUNT_PICKER = 101;
+    private static final int REQUEST_AUTHORIZATION = 102;
+    private static final int REQUEST_GOOGLE_PLAY_SERVICES = 103;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -66,18 +74,14 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
     public static final String ALBUM_NAME = "Cam2PDF";
 
-    private static final int RESOLVE_CONNECTION_REQUEST_CODE = 1;
-    private static final int REQUEST_CODE_CREATOR = 31415;
     private static final int DOCUMENT_MARGIN = 25;
 
     private List<String> mPhotoPaths;
     private List<Bitmap> mThumbnails;
     private SaveImageTask mSaveImageTask;
     private ActionBar mActionBar;
-    private GoogleApiClient mGoogleApiClient;
-    private boolean mUploadingToDrive;
-    private Notification.Builder mBuilder;
-
+    private GoogleAccountCredential mCredential;
+    private Drive mService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +107,15 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
             mActionBar.setDisplayShowHomeEnabled(true);
             mActionBar.hide();
         }
+        // Google Accounts
+        mCredential =
+                GoogleAccountCredential.usingOAuth2(this, Collections.singleton(DriveScopes.DRIVE));
+        SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
+        mCredential.setSelectedAccountName(settings.getString(PREF_ACCOUNT_NAME, null));
+        // Tasks client
+        mService =
+                new Drive.Builder(AndroidHttp.newCompatibleTransport(), new GsonFactory(), mCredential).build();
+
     }
 
     @Override
@@ -198,24 +211,14 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
         Log.d("C2P", "Deleted temp image files");
     }
 
-    @Override
-    public void onConnected(Bundle bundle) {
-        mUploadingToDrive = false;
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
 
     public void saveToDrive() {
-        final List<String> photos = mPhotoPaths;
-        if (mUploadingToDrive) return;
-        Drive.DriveApi.newDriveContents(mGoogleApiClient).setResultCallback(new ResultCallback<DriveApi.DriveContentsResult>() {
+
+        new AsyncTask<Void, Void, Void>() {
+
             @Override
-            public void onResult(DriveApi.DriveContentsResult driveContentsResult) {
+            protected Void doInBackground(Void... voids) {
                 try {
-                    mUploadingToDrive = true;
                     String filename = "exported.pdf";
                     // Get output Directory
                     // Create the PDF and set some metadata
@@ -225,7 +228,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                     document.addAuthor(resources.getString(R.string.app_name));
                     document.addSubject(resources.getString(R.string.file_subject));
                     // Open the file that we will write the pdf to.
-                    OutputStream outputStream = driveContentsResult.getDriveContents().getOutputStream();
+                    OutputStream outputStream = new FileOutputStream(ImageUtils.getAlbumStorageDir(ALBUM_NAME) + filename);
                     PdfWriter.getInstance(document, outputStream);
                     document.open();
                     // Get the document's size
@@ -233,7 +236,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                     float pageWidth = pageSize.getWidth() - (document.leftMargin() + document.rightMargin());
                     float pageHeight = pageSize.getHeight();
                     //Loop through images and add them to the document
-                    for (String path : photos) {
+                    for (String path : mPhotoPaths) {
                         Image image = Image.getInstance(path);
                         image.scaleToFit(pageWidth, pageHeight);
                         document.add(image);
@@ -242,80 +245,102 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                     // Cleanup
                     document.close();
                     outputStream.close();
-                    // Set Mime type
-                    MetadataChangeSet metadataChangeSet = new MetadataChangeSet.Builder()
-                            .setMimeType("application/pdf").setTitle(filename).build();
-
-                    // Create an intent for the file chooser, and start it.
-                    IntentSender intentSender = Drive.DriveApi
-                            .newCreateFileActivityBuilder()
-                            .setInitialMetadata(metadataChangeSet)
-                            .setInitialDriveContents(driveContentsResult.getDriveContents())
-                            .build(mGoogleApiClient);
+                    java.io.File fileContent = new java.io.File(ImageUtils.getAlbumStorageDir(ALBUM_NAME) + filename);
+                    FileContent mediaContent = new FileContent("application/pdf", fileContent);
+                    File body = new File();
+                    body.setTitle("exported.pdf");
+                    body.setDescription("A test document");
+                    body.setMimeType("application/pdf");
                     try {
-                        startIntentSenderForResult(
-                                intentSender, REQUEST_CODE_CREATOR, null, 0, 0, 0);
-                    } catch (IntentSender.SendIntentException e) {
-                        Log.i("C2P", "Failed to launch file chooser.");
+                        File file = mService.files().insert(body, mediaContent).execute();
+                        Log.d("C2P", "File ID: " + file.getId());
+                    } catch (UserRecoverableAuthIOException e) {
+                        startActivityForResult(e.getIntent(), REQUEST_AUTHORIZATION);
                     }
                 } catch (Exception e) {
-                    Log.e("C2P", "unable to upvert", e);
-                    return;
+                    Log.d("C2P", "ERROR", e);
                 }
+                return null;
             }
-
-        });
+        }.execute();
     }
 
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        if (connectionResult.hasResolution()) {
-            try {
-                connectionResult.startResolutionForResult(this, RESOLVE_CONNECTION_REQUEST_CODE);
-            } catch (IntentSender.SendIntentException e) {
-                // Unable to resolve, message user appropriately
-            }
-        } else {
-            GooglePlayServicesUtil.getErrorDialog(connectionResult.getErrorCode(), this, 0).show();
-        }
-
-    }
 
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch (requestCode) {
-            case RESOLVE_CONNECTION_REQUEST_CODE:
-                if (resultCode == RESULT_OK) {
-                    mGoogleApiClient.connect();
+            case REQUEST_GOOGLE_PLAY_SERVICES:
+                if (resultCode == Activity.RESULT_OK) {
+                    haveGooglePlayServices();
+                } else {
+                    checkGooglePlayServicesAvailable();
                 }
                 break;
-            case REQUEST_CODE_CREATOR:
-                if (resultCode == RESULT_OK) {
-                    DriveId uploadId = data.getParcelableExtra("response_drive_id");
-                    // uploadId.encodeToString();
-                    mUploadingToDrive = false;
-                    NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    mBuilder = new Notification.Builder(MainActivity.this);
-                    mBuilder.setContentTitle("Uploaded PDF to Drive")
-                            .setContentText("Cam2PDF")
-                            .setSmallIcon(R.drawable.ic_notification_logo);
-                    notificationManager.notify(1, mBuilder.build());
+            case REQUEST_AUTHORIZATION:
+                if (resultCode == Activity.RESULT_OK) {
+                    saveToDrive();
+                } else {
+                    chooseAccount();
                 }
+                break;
+            case REQUEST_ACCOUNT_PICKER:
+                if (resultCode == Activity.RESULT_OK && data != null && data.getExtras() != null) {
+                    String accountName = data.getExtras().getString(AccountManager.KEY_ACCOUNT_NAME);
+                    if (accountName != null) {
+                        mCredential.setSelectedAccountName(accountName);
+                        SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = settings.edit();
+                        editor.putString(PREF_ACCOUNT_NAME, accountName);
+                        editor.commit();
+                    }
+                }
+                break;
         }
+    }
+
+    /**
+     * Check that Google Play services APK is installed and up to date.
+     */
+    private boolean checkGooglePlayServicesAvailable() {
+        final int connectionStatusCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (GooglePlayServicesUtil.isUserRecoverableError(connectionStatusCode)) {
+            showGooglePlayServicesAvailabilityErrorDialog(connectionStatusCode);
+            return false;
+        }
+        return true;
+    }
+
+    private void haveGooglePlayServices() {
+        // check if there is already an account selected
+        if (mCredential.getSelectedAccountName() == null) {
+            // ask user to choose account
+            chooseAccount();
+        } else {
+            // load calendars
+        }
+    }
+
+    void showGooglePlayServicesAvailabilityErrorDialog(final int connectionStatusCode) {
+        runOnUiThread(new Runnable() {
+            public void run() {
+                Dialog dialog =
+                        GooglePlayServicesUtil.getErrorDialog(connectionStatusCode, MainActivity.this,
+                                REQUEST_GOOGLE_PLAY_SERVICES);
+                dialog.show();
+            }
+        });
+    }
+
+    private void chooseAccount() {
+        startActivityForResult(mCredential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addApi(Drive.API)
-                    .addScope(Drive.SCOPE_FILE)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .build();
+        if (checkGooglePlayServicesAvailable()) {
+            haveGooglePlayServices();
         }
-        mGoogleApiClient.connect();
     }
 
     /**
