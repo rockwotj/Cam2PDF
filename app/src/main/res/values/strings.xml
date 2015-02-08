@@ -31,5 +31,9 @@
     <string name="folder">Folder</string>
     <string name="upvert_dialog_title">Upload to Drive</string>
     <string name="upload">Upload</string>
+    <string name="notification_info">Uploading PDF from Cam2PDF</string>
+    <string name="notification_start">Uploading PDF</string>
+    <string name="notification_complete">Upload complete</string>
+    <string name="notification_error">Error during upload!</string>
 
 </resources>

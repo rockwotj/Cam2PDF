@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
 import android.os.AsyncTask;
@@ -29,21 +28,12 @@ import android.widget.Toast;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-import com.google.api.client.http.FileContent;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
-import com.google.api.services.drive.model.File;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.PageSize;
-import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.PdfWriter;
 import com.tylerrockwood.software.cam2pdf.backgroundTasks.SaveImageTask;
+import com.tylerrockwood.software.cam2pdf.backgroundTasks.UpvertTask;
 
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -55,7 +45,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
     private static final String PREF_ACCOUNT_NAME = "PREFS";
     private static final int REQUEST_ACCOUNT_PICKER = 101;
-    private static final int REQUEST_AUTHORIZATION = 102;
+    public static final int REQUEST_AUTHORIZATION = 102;
     private static final int REQUEST_GOOGLE_PLAY_SERVICES = 103;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -74,7 +64,6 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
     public static final String ALBUM_NAME = "Cam2PDF";
 
-    private static final int DOCUMENT_MARGIN = 25;
 
     private List<String> mPhotoPaths;
     private List<Bitmap> mThumbnails;
@@ -213,56 +202,8 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
 
     public void saveToDrive() {
-
-        new AsyncTask<Void, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Void... voids) {
-                try {
-                    String filename = "exported.pdf";
-                    // Get output Directory
-                    // Create the PDF and set some metadata
-                    Document document = new Document(PageSize.A4, DOCUMENT_MARGIN, DOCUMENT_MARGIN, DOCUMENT_MARGIN, DOCUMENT_MARGIN);
-                    Resources resources = getResources();
-                    document.addTitle(filename);
-                    document.addAuthor(resources.getString(R.string.app_name));
-                    document.addSubject(resources.getString(R.string.file_subject));
-                    // Open the file that we will write the pdf to.
-                    OutputStream outputStream = new FileOutputStream(ImageUtils.getAlbumStorageDir(ALBUM_NAME) + filename);
-                    PdfWriter.getInstance(document, outputStream);
-                    document.open();
-                    // Get the document's size
-                    Rectangle pageSize = document.getPageSize();
-                    float pageWidth = pageSize.getWidth() - (document.leftMargin() + document.rightMargin());
-                    float pageHeight = pageSize.getHeight();
-                    //Loop through images and add them to the document
-                    for (String path : mPhotoPaths) {
-                        Image image = Image.getInstance(path);
-                        image.scaleToFit(pageWidth, pageHeight);
-                        document.add(image);
-                        document.newPage();
-                    }
-                    // Cleanup
-                    document.close();
-                    outputStream.close();
-                    java.io.File fileContent = new java.io.File(ImageUtils.getAlbumStorageDir(ALBUM_NAME) + filename);
-                    FileContent mediaContent = new FileContent("application/pdf", fileContent);
-                    File body = new File();
-                    body.setTitle("exported.pdf");
-                    body.setDescription("A test document");
-                    body.setMimeType("application/pdf");
-                    try {
-                        File file = mService.files().insert(body, mediaContent).execute();
-                        Log.d("C2P", "File ID: " + file.getId());
-                    } catch (UserRecoverableAuthIOException e) {
-                        startActivityForResult(e.getIntent(), REQUEST_AUTHORIZATION);
-                    }
-                } catch (Exception e) {
-                    Log.d("C2P", "ERROR", e);
-                }
-                return null;
-            }
-        }.execute();
+        String[] params = mPhotoPaths.toArray(new String[mPhotoPaths.size()]);
+        new UpvertTask(this, mService).execute(params);
     }
 
 
@@ -316,7 +257,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
             // ask user to choose account
             chooseAccount();
         } else {
-            // load calendars
+            // load pdfs?
         }
     }
 
