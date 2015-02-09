@@ -22,7 +22,10 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -31,6 +34,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.File;
 import com.tylerrockwood.software.cam2pdf.backgroundTasks.SaveImageTask;
 import com.tylerrockwood.software.cam2pdf.backgroundTasks.UpvertTask;
 
@@ -97,14 +101,14 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
             mActionBar.hide();
         }
         // Google Accounts
-        mCredential =
-                GoogleAccountCredential.usingOAuth2(this, Collections.singleton(DriveScopes.DRIVE));
+        mCredential = GoogleAccountCredential.usingOAuth2(this, Collections.singleton(DriveScopes.DRIVE));
         SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
         mCredential.setSelectedAccountName(settings.getString(PREF_ACCOUNT_NAME, null));
-        // Tasks client
-        mService =
-                new Drive.Builder(AndroidHttp.newCompatibleTransport(), new GsonFactory(), mCredential).build();
-
+        // Drive client
+        mService = new Drive
+                .Builder(AndroidHttp.newCompatibleTransport(), new GsonFactory(), mCredential)
+                .setApplicationName(getString(R.string.app_name))
+                .build();
     }
 
     @Override
@@ -202,8 +206,27 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
 
     public void saveToDrive() {
-        String[] params = mPhotoPaths.toArray(new String[mPhotoPaths.size()]);
-        new UpvertTask(this, mService).execute(params);
+        View v = getLayoutInflater().inflate(R.layout.dialog_upvert, null);
+        final EditText fileInput = (EditText) v.findViewById(R.id.filenameInput);
+        final Spinner folderInput = (Spinner) v.findViewById(R.id.folderSpinner);
+        fileInput.setText("exported.pdf");
+        final DriveFolderAdapter adapter = new DriveFolderAdapter(this, mService);
+        folderInput.setAdapter(adapter);
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.upvert_dialog_title))
+                .setView(v)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        String[] params = mPhotoPaths.toArray(new String[mPhotoPaths.size()]);
+                        String filename = fileInput.getText().toString();
+                        File folder = adapter.getFileFromTitle(folderInput.getSelectedItem().toString());
+                        new UpvertTask(MainActivity.this, mService, filename, folder).execute(params);
+                    }
+                })
+                .show();
+        fileInput.requestFocus();
     }
 
 
