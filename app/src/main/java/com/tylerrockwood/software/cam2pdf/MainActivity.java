@@ -72,6 +72,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     private List<String> mPhotoPaths;
     private List<Bitmap> mThumbnails;
     private SaveImageTask mSaveImageTask;
+    private UpvertTask mUpvertTask;
     private ActionBar mActionBar;
     private GoogleAccountCredential mCredential;
     private Drive mService;
@@ -201,6 +202,9 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
         ImageUtils.clearStorageDir(ALBUM_NAME);
         mPhotoPaths.clear();
         mThumbnails.clear();
+        if (mUpvertTask != null && mUpvertTask.getStatus() == AsyncTask.Status.RUNNING) {
+            mUpvertTask.cancel(true);
+        }
         Log.d("C2P", "Deleted temp image files");
     }
 
@@ -222,7 +226,8 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                         String[] params = mPhotoPaths.toArray(new String[mPhotoPaths.size()]);
                         String filename = fileInput.getText().toString();
                         File folder = adapter.getFileFromTitle(folderInput.getSelectedItem().toString());
-                        new UpvertTask(MainActivity.this, mService, filename, folder).execute(params);
+                        mUpvertTask = new UpvertTask(MainActivity.this, mService, filename, folder);
+                        mUpvertTask.execute(params);
                     }
                 })
                 .show();

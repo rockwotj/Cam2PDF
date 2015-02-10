@@ -35,5 +35,6 @@
     <string name="notification_start">Uploading PDF</string>
     <string name="notification_complete">Upload complete</string>
     <string name="notification_error">Error during upload!</string>
+    <string name="notification_error_cancelled">Error on upload! App Closed</string>
 
 </resources>

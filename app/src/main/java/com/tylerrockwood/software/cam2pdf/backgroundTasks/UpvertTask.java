@@ -3,10 +3,12 @@ package com.tylerrockwood.software.cam2pdf.backgroundTasks;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -55,6 +57,7 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
         // Do stuff with a notification
         mBuilder = new Notification.Builder(mContext)
                 .setAutoCancel(false)
+                .setOngoing(true)
                 .setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(),
                         android.R.drawable.stat_sys_upload_done))
                 .setSmallIcon(R.drawable.ic_notification_logo)
@@ -100,12 +103,13 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
             if (mFolder != null)
                 body.setParents(Arrays.asList(new ParentReference().setId(mFolder.getId())));
             body.setTitle(mFilename);
-            body.setDescription("Created by Cam2PDF");
+            body.setDescription(resources.getString(R.string.file_subject));
             body.setMimeType("application/pdf");
             try {
 
                 File file = mService.files().insert(body, mediaContent).execute();
                 Log.d("C2P", "File Id: " + file.getId());
+
             } catch (UserRecoverableAuthIOException e) {
                 return e;
             }
@@ -126,10 +130,27 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
             mBuilder.setContentTitle(mContext.getString(R.string.notification_error));
         } else {
             mBuilder.setContentTitle(mContext.getString(R.string.notification_complete));
+            // Set clickable intent to Drive App
+            String parentFolder = mFolder != null ? mFolder.getId() : "root";
+            Intent notifyIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://drive.google.com/open?id=" + parentFolder + "&authuser=0"));
+            notifyIntent.setPackage("com.google.android.apps.docs");
+            mBuilder.setContentIntent(PendingIntent.getActivity(mContext, 1, notifyIntent, PendingIntent.FLAG_ONE_SHOT));
+            mBuilder.setAutoCancel(true);
         }
         mBuilder.setProgress(0, 0, false)
+                .setOngoing(false)
                 .setSmallIcon(R.drawable.ic_notification_logo);
         mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
     }
 
+    @Override
+    protected void onCancelled() {
+        mBuilder.setContentTitle(mContext.getString(R.string.notification_error_cancelled))
+                .setProgress(0, 0, false)
+                .setOngoing(false)
+                .setSmallIcon(R.drawable.ic_notification_logo);
+        mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
+
+        super.onCancelled();
+    }
 }
