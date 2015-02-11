@@ -21,22 +21,22 @@ import java.util.Map;
  */
 public class DriveFolderAdapter extends ArrayAdapter {
 
-    private final Drive drive;
+    private final Drive mDrive;
 
-    private final Map<String, File> folderMap;
+    private final Map<String, File> mFolderMap;
 
     public DriveFolderAdapter(Context context, Drive service) {
         super(context, android.R.layout.simple_spinner_item, new ArrayList());
         add("/");
         setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        drive = service;
-        folderMap = new HashMap<>();
-        folderMap.put("/", null);
+        mDrive = service;
+        mFolderMap = new HashMap<>();
+        mFolderMap.put("/", null);
         new GetFoldersTask("root", "/").execute();
     }
 
     public File getFileFromTitle(String folderString) {
-        return folderMap.get(folderString);
+        return mFolderMap.get(folderString);
     }
 
     private class GetFoldersTask extends AsyncTask<Void, Void, Map<String, File>> {
@@ -61,7 +61,7 @@ public class DriveFolderAdapter extends ArrayAdapter {
 
         public Map<String, File> getFolderChildren(String id, String path) throws IOException {
             Map<String, File> folders = new HashMap<>();
-            Drive.Files.List files = drive.files().list();
+            Drive.Files.List files = mDrive.files().list();
             files.setQ("mimeType = 'application/vnd.google-apps.folder' and '" + id + "' in parents");
             FileList list = files.execute();
             for (File f : list.getItems()) {
@@ -93,7 +93,7 @@ public class DriveFolderAdapter extends ArrayAdapter {
                         return count;
                     }
                 });
-                folderMap.putAll(folders);
+                mFolderMap.putAll(folders);
                 DriveFolderAdapter.this.addAll(list);
                 DriveFolderAdapter.this.notifyDataSetChanged();
             }
