@@ -32,7 +32,6 @@ public class DriveFolderAdapter extends ArrayAdapter {
         drive = service;
         folderMap = new HashMap<>();
         folderMap.put("/", null);
-        // Do magic to create folder map
         new GetFoldersTask("root", "/").execute();
     }
 

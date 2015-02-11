@@ -76,6 +76,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     private ActionBar mActionBar;
     private GoogleAccountCredential mCredential;
     private Drive mService;
+    private Menu mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +94,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setCurrentItem(1);
         mViewPager.setOnPageChangeListener(this);
         mActionBar = getSupportActionBar();
         if (mActionBar != null) {
@@ -116,11 +118,16 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        mMenu = menu;
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_pick_account) {
+            chooseAccount();
+            return true;
+        }
         boolean result = this.mSectionsPagerAdapter.sendActionToCurrentFragment(item);
         return result || super.onOptionsItemSelected(item);
     }
@@ -163,10 +170,19 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
     @Override
     public void onPageSelected(int position) {
-        if (position == 1) {
+        if (position != 1) {
             mActionBar.show();
-            mSectionsPagerAdapter.updateCurrentFragment();
-        } else if (position == 0) {
+            boolean onImagesFragment = position == 2;
+            MenuItem item = mMenu.findItem(R.id.action_pick);
+            item.setVisible(onImagesFragment);
+            item = mMenu.findItem(R.id.action_delete);
+            item.setVisible(onImagesFragment);
+            if (onImagesFragment) {
+                mSectionsPagerAdapter.updateImagesFragment();
+            } else {
+                mSectionsPagerAdapter.updateUploadsFragment();
+            }
+        } else {
             mActionBar.hide();
         }
     }
@@ -325,10 +341,13 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
             super(fm);
         }
 
-        public void updateCurrentFragment() {
+        public void updateImagesFragment() {
             if (mCurrentImagesFragment != null) {
                 mCurrentImagesFragment.updateView();
             }
+        }
+
+        public void updateUploadsFragment() {
         }
 
         @Override
@@ -336,6 +355,8 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
             // getItem is called to instantiate the fragment for the given page.
             switch (position) {
                 case 0:
+                    return new UploadsFragment();
+                case 1:
                     mCurrentCameraFragment = new CameraFragment();
                     return mCurrentCameraFragment;
                 default:
@@ -346,8 +367,8 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
         @Override
         public int getCount() {
-            // Show 2 total pages.
-            return 2;
+            // Show 3 total pages.
+            return 3;
         }
 
         @Override
@@ -355,11 +376,11 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
             Locale l = Locale.getDefault();
             switch (position) {
                 case 0:
-                    return getString(R.string.title_section1).toUpperCase(l);
-                case 1:
-                    return getString(R.string.title_section2).toUpperCase(l);
-                case 2:
                     return getString(R.string.title_section3).toUpperCase(l);
+                case 1:
+                    return getString(R.string.title_section1).toUpperCase(l);
+                case 2:
+                    return getString(R.string.title_section2).toUpperCase(l);
             }
             return null;
         }
@@ -370,6 +391,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
             }
             return false;
         }
+
     }
 
 

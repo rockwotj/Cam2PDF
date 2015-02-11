@@ -14,4 +14,9 @@
         android:icon="@drawable/ic_rubbish_bin"
         android:title="@string/delete"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_pick_account"
+        android:title="@string/choose_account"
+        app:showAsAction="never" />
 </menu>

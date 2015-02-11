@@ -36,5 +36,6 @@
     <string name="notification_complete">Upload complete</string>
     <string name="notification_error">Error during upload!</string>
     <string name="notification_error_cancelled">Error on upload! App Closed</string>
+    <string name="choose_account">Change Account...</string>
 
 </resources>
