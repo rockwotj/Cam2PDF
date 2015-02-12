@@ -110,6 +110,8 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
                 // That way if they switch accounts the data is per each account.
                 // mService.about().get().execute().getUser().getEmailAddress();
                 File file = mService.files().insert(body, mediaContent).execute();
+                // Possibly do fancy stuff if the notification if there is time
+                // http://stackoverflow.com/questions/13580109/check-progress-for-upload-download-google-drive-api-for-android-or-java
                 Log.d("C2P", "File Id: " + file.getId());
                 // TODO: Save the file and metadata to a database
             } catch (UserRecoverableAuthIOException e) {
