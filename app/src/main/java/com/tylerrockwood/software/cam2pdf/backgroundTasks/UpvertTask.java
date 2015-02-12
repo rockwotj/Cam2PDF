@@ -13,6 +13,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.googleapis.media.MediaHttpUploader;
+import com.google.api.client.googleapis.media.MediaHttpUploaderProgressListener;
 import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
@@ -27,6 +29,7 @@ import com.tylerrockwood.software.cam2pdf.MainActivity;
 import com.tylerrockwood.software.cam2pdf.R;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
 
@@ -109,9 +112,12 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
                 // You might want to grab the email Address for the database...
                 // That way if they switch accounts the data is per each account.
                 // mService.about().get().execute().getUser().getEmailAddress();
-                File file = mService.files().insert(body, mediaContent).execute();
-                // Possibly do fancy stuff if the notification if there is time
-                // http://stackoverflow.com/questions/13580109/check-progress-for-upload-download-google-drive-api-for-android-or-java
+                Drive.Files.Insert insert = mService.files().insert(body, mediaContent);
+                MediaHttpUploader uploader = insert.getMediaHttpUploader();
+                uploader.setDirectUploadEnabled(false);
+                uploader.setChunkSize(MediaHttpUploader.MINIMUM_CHUNK_SIZE);
+                uploader.setProgressListener(new FileProgressListener());
+                File file = insert.execute();
                 Log.d("C2P", "File Id: " + file.getId());
                 // TODO: Save the file and metadata to a database
             } catch (UserRecoverableAuthIOException e) {
@@ -154,7 +160,28 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
                 .setOngoing(false)
                 .setSmallIcon(R.drawable.ic_notification_logo);
         mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
-
         super.onCancelled();
+    }
+
+    private class FileProgressListener implements MediaHttpUploaderProgressListener {
+        @Override
+        public void progressChanged(MediaHttpUploader uploader) throws IOException {
+            if (uploader == null) return;
+            switch (uploader.getUploadState()) {
+                case INITIATION_STARTED:
+                    //System.out.println("Initiation has started!");
+                    break;
+                case INITIATION_COMPLETE:
+                    //System.out.println("Initiation is complete!");
+                    break;
+                case MEDIA_IN_PROGRESS:
+                    int percent = (int) (uploader.getProgress() * 100);
+                    mBuilder.setProgress(100, percent, false);
+                    mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
+                    break;
+                case MEDIA_COMPLETE:
+                    //System.out.println("Upload is complete!");
+            }
+        }
     }
 }
