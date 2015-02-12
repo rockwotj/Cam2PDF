@@ -1,6 +1,8 @@
 package com.tylerrockwood.software.cam2pdf;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,11 +33,12 @@ public class UploadAdapter extends BaseAdapter {
     }
 
     public void remove(Object item) {
+        mUploads.remove(item);
     }
 
     @Override
-    public Object getItem(int i) {
-        return null;
+    public Upload getItem(int i) {
+        return mUploads.get(i);
     }
 
     @Override
@@ -54,6 +57,14 @@ public class UploadAdapter extends BaseAdapter {
         final Upload upload = mUploads.get(i);
         TextView filename = (TextView) v.findViewById(R.id.filename);
         TextView date = (TextView) v.findViewById(R.id.date);
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(upload.toString()));
+                intent.setPackage("com.google.android.apps.docs");
+                mContext.startActivity(intent);
+            }
+        });
         final View infoButton = v.findViewById(R.id.info_button);
         infoButton.setOnClickListener(new View.OnClickListener() {
             @Override

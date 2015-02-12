@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 
 /**
@@ -22,6 +23,12 @@ public class UploadsFragment extends Fragment {
         ListView uploadsList = (ListView) rootView.findViewById(R.id.uploads_list);
         mAdapter = new UploadAdapter(getActivity());
         uploadsList.setAdapter(mAdapter);
+        TextView emptyView = new TextView(getActivity());
+        emptyView.setText("You haven't uploaded anything yet!");
+        emptyView.setPadding(0, 20, 0, 0);
+        emptyView.setTextSize(18);
+        uploadsList.setEmptyView(emptyView);
         return rootView;
     }
+
 }

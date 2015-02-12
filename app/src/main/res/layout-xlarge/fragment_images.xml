@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="?attr/actionBarSize">
@@ -14,16 +15,20 @@
         android:stretchMode="columnWidth"
         android:gravity="center" />
 
-    <ImageButton
+    <com.getbase.floatingactionbutton.FloatingActionButton
+        android:id="@+id/upvert_button"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:background="@drawable/ic_upload_btn"
-        android:id="@+id/upvert_button"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp"
         android:layout_alignParentBottom="true"
+        fab:fab_icon="@drawable/ic_upload"
+        fab:fab_plusIconColor="@android:color/white"
+        fab:fab_colorNormal="@color/yellow"
+        fab:fab_colorPressed="@color/darker_yellow"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="18dp"
+        android:layout_marginEnd="18dp" />
 
 </RelativeLayout>
 

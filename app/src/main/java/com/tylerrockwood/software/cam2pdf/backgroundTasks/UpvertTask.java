@@ -106,10 +106,12 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
             body.setDescription(resources.getString(R.string.file_subject));
             body.setMimeType("application/pdf");
             try {
-
+                // You might want to grab the email Address for the database...
+                // That way if they switch accounts the data is per each account.
+                // mService.about().get().execute().getUser().getEmailAddress();
                 File file = mService.files().insert(body, mediaContent).execute();
                 Log.d("C2P", "File Id: " + file.getId());
-
+                // TODO: Save the file and metadata to a database
             } catch (UserRecoverableAuthIOException e) {
                 return e;
             }

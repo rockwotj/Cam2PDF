@@ -39,7 +39,7 @@ public class Upload {
 
     @Override
     public String toString() {
-        return "https://drive.google.com/open?mId=" + mParentFolder + "&authuser=0";
+        return "https://drive.google.com/open?id=" + mParentFolder + "&authuser=0";
     }
 
     public void setId(long id) {
