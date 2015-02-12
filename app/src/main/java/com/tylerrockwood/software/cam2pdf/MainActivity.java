@@ -98,9 +98,6 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
         mViewPager.setOnPageChangeListener(this);
         mActionBar = getSupportActionBar();
         if (mActionBar != null) {
-            mActionBar.setTitle(null);
-            mActionBar.setIcon(R.drawable.ic_logo);
-            mActionBar.setDisplayShowHomeEnabled(true);
             mActionBar.hide();
         }
         // Google Accounts
@@ -171,17 +168,22 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     @Override
     public void onPageSelected(int position) {
         if (position != 1) {
-            mActionBar.show();
             boolean onImagesFragment = position == 2;
             MenuItem item = mMenu.findItem(R.id.action_pick);
             item.setVisible(onImagesFragment);
             item = mMenu.findItem(R.id.action_delete);
             item.setVisible(onImagesFragment);
+            mActionBar.setDisplayShowHomeEnabled(onImagesFragment);
             if (onImagesFragment) {
+                mActionBar.setTitle(null);
+                mActionBar.setIcon(R.drawable.ic_logo);
                 mSectionsPagerAdapter.updateImagesFragment();
             } else {
+                mActionBar.setTitle(getString(R.string.recent_uploads));
+                mActionBar.setIcon(null);
                 mSectionsPagerAdapter.updateUploadsFragment();
             }
+            mActionBar.show();
         } else {
             mActionBar.hide();
         }

@@ -1,6 +1,7 @@
 package com.tylerrockwood.software.cam2pdf;
 
 import android.content.Context;
+import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,12 +21,16 @@ public class UploadAdapter extends BaseAdapter {
 
     public UploadAdapter(Context context) {
         mContext = context;
-        mUploads = Arrays.asList(new Upload(0, "exported.pdf", "root", "01/01/2015"));
+        // TODO: actually pull values from a database
+        mUploads = Arrays.asList(new Upload(0, "exported.pdf", "/", "956KB", "root", "01/01/2015"));
     }
 
     @Override
     public int getCount() {
         return mUploads.size();
+    }
+
+    public void remove(Object item) {
     }
 
     @Override
@@ -46,14 +51,26 @@ public class UploadAdapter extends BaseAdapter {
         } else {
             v = view;
         }
+        final Upload upload = mUploads.get(i);
         TextView filename = (TextView) v.findViewById(R.id.filename);
         TextView date = (TextView) v.findViewById(R.id.date);
-        Upload upload = mUploads.get(i);
+        final View infoButton = v.findViewById(R.id.info_button);
+        infoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PopupMenu popup = new PopupMenu(mContext, infoButton);
+                //Inflating the Popup using xml file
+                popup.getMenuInflater()
+                        .inflate(R.menu.upload_info_popup, popup.getMenu());
+                popup.getMenu().getItem(0).setTitle(mContext.getResources().getString(R.string.folder_colon) + upload.getPath());
+                popup.getMenu().getItem(1).setTitle(mContext.getResources().getString(R.string.size) + upload.getSize());
+                popup.show();
+            }
+        });
         filename.setText(upload.getName());
         date.setText(upload.getCreationDate());
         return v;
     }
 
-    public void remove(Object item) {
-    }
+
 }

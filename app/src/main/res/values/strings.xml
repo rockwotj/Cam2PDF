@@ -37,5 +37,8 @@
     <string name="notification_error">Error during upload!</string>
     <string name="notification_error_cancelled">Error on upload! App Closed</string>
     <string name="choose_account">Change Account...</string>
+    <string name="recent_uploads">Recent Uploads</string>
+    <string name="size">"Size: "</string>
+    <string name="folder_colon">"Folder: "</string>
 
 </resources>

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="checked_background">#7FBFBFBF</color>
+    <color name="card_header">#F3B000</color>
 </resources>

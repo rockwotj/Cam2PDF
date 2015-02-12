@@ -1,26 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="50dp">
+    android:layout_height="72dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:paddingLeft="10dp"
+        android:textSize="16sp"
+        android:paddingLeft="16dp"
+        android:paddingTop="16dp"
+        android:fontFamily="Roboto Regular"
+        android:textColor="@android:color/white"
         android:id="@+id/filename"
         android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
+        android:layout_alignParentTop="true"
         android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:fontFamily="Roboto Regular"
+        android:paddingLeft="16dp"
+        android:textSize="14sp"
         android:textColor="@android:color/secondary_text_dark"
-        android:paddingRight="10dp"
         android:id="@+id/date"
-        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/filename"
+        android:layout_alignParentStart="true" />
+
+    <ImageButton
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:id="@+id/info_button"
+        android:background="@null"
+        android:src="@drawable/ic_info"
+        android:layout_width="72dp"
+        android:layout_height="72dp" />
 </RelativeLayout>

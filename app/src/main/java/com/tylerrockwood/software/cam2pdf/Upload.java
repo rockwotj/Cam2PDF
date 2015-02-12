@@ -7,12 +7,16 @@ public class Upload {
 
     private long mId;
     private String mName;
+    private String mPath;
+    private String mSize;
     private String mParentFolder;
     private String mCreationDate;
 
-    public Upload(long id, String name, String parentFolder, String creationDate) {
+    public Upload(long id, String name, String path, String size, String parentFolder, String creationDate) {
         this.mId = id;
         this.mName = name;
+        this.mPath = path;
+        this.mSize = size;
         this.mParentFolder = parentFolder;
         this.mCreationDate = creationDate;
     }
@@ -21,8 +25,12 @@ public class Upload {
         return mCreationDate;
     }
 
-    public String getParentFolder() {
-        return mParentFolder;
+    public String getPath() {
+        return mPath;
+    }
+
+    public String getSize() {
+        return mSize;
     }
 
     public String getName() {
