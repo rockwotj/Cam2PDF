@@ -40,5 +40,7 @@
     <string name="recent_uploads">Recent Uploads</string>
     <string name="size">"Size: "</string>
     <string name="folder_colon">"Folder: "</string>
+    <string name="no_uploads">You haven\'t uploaded anything yet!</string>
+    <string name="captured_images">Captured Images</string>
 
 </resources>

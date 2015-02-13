@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,7 +24,13 @@ public class UploadAdapter extends BaseAdapter {
     public UploadAdapter(Context context) {
         mContext = context;
         // TODO: actually pull values from a database
-        mUploads = Arrays.asList(new Upload(0, "exported.pdf", "/", "956KB", "root", "01/01/2015"));
+        mUploads = new ArrayList<>();
+        mUploads.add(new Upload(0, "exported.pdf", "/", "956KB", "root", "01/01/2015"));
+    }
+
+    public void update() {
+        // TODO: Pull new values from database
+
     }
 
     @Override

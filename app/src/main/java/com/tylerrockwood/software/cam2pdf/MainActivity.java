@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
 import android.media.ThumbnailUtils;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -99,6 +100,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
         mActionBar = getSupportActionBar();
         if (mActionBar != null) {
             mActionBar.hide();
+            mActionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.primary)));
         }
         // Google Accounts
         mCredential = GoogleAccountCredential.usingOAuth2(this, Collections.singleton(DriveScopes.DRIVE));
@@ -175,12 +177,10 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
             item.setVisible(onImagesFragment);
             mActionBar.setDisplayShowHomeEnabled(onImagesFragment);
             if (onImagesFragment) {
-                mActionBar.setTitle(null);
-                mActionBar.setIcon(R.drawable.ic_logo);
+                mActionBar.setTitle(getString(R.string.captured_images));
                 mSectionsPagerAdapter.updateImagesFragment();
             } else {
                 mActionBar.setTitle(getString(R.string.recent_uploads));
-                mActionBar.setIcon(null);
                 mSectionsPagerAdapter.updateUploadsFragment();
             }
             mActionBar.show();
@@ -388,10 +388,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
         }
 
         public boolean sendActionToCurrentFragment(MenuItem item) {
-            if (mCurrentImagesFragment != null) {
-                return mCurrentImagesFragment.onOptionsItemSelected(item);
-            }
-            return false;
+            return mCurrentImagesFragment != null && mCurrentImagesFragment.onOptionsItemSelected(item);
         }
 
     }

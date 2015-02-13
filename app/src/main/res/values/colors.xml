@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="checked_background">#7FBFBFBF</color>
-    <color name="yellow">#F3B000</color>
-    <color name="darker_yellow">#C28D00</color>
+    <color name="primary">#673AB7</color>
+    <color name="primary_dark">#512DA8</color>
 </resources>
