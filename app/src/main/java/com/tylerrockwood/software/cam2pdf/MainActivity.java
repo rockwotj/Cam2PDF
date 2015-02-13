@@ -279,6 +279,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                         SharedPreferences.Editor editor = settings.edit();
                         editor.putString(PREF_ACCOUNT_NAME, accountName);
                         editor.commit();
+                        // TODO: update the UploadsFragment
                     }
                 }
                 break;
@@ -303,7 +304,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
             // ask user to choose account
             chooseAccount();
         } else {
-            // load pdfs?
+            // TODO: update the UploadsFragment
         }
     }
 
