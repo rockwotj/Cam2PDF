@@ -11,21 +11,18 @@ public class Upload implements Comparable<Upload> {
     private String mName;
     private String mPath;
     private String mSize;
-
-    public String getParentFolder() {
-        return mParentFolder;
-    }
-
     private String mParentFolder;
     private String mCreationDate;
+    private String mUploadersEmail;
 
-    public Upload(long id, String name, String path, String size, String parentFolder, String creationDate) {
+    public Upload(long id, String name, String path, String size, String parentFolder, String creationDate, String uploadersEmail) {
         this.mId = id;
         this.mName = name;
         this.mPath = path;
         this.mSize = size;
         this.mParentFolder = parentFolder;
         this.mCreationDate = creationDate;
+        this.mUploadersEmail = uploadersEmail;
     }
 
     public String getCreationDate() {
@@ -55,6 +52,15 @@ public class Upload implements Comparable<Upload> {
 
     public long getId() {
         return mId;
+    }
+
+    public String getParentFolder() {
+        return mParentFolder;
+    }
+
+
+    public String getUploadersEmail() {
+        return mUploadersEmail;
     }
 
     @Override

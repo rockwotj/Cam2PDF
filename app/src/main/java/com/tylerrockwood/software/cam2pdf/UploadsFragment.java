@@ -20,6 +20,7 @@ public class UploadsFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private UploadAdapter mAdapter;
     private SwipeRefreshLayout mSwipeLayout;
     private View mEmptyView;
+    protected UploadDataAdapter mUploadDataAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -33,6 +34,11 @@ public class UploadsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 android.R.color.holo_red_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_green_light);
+
+        mUploadDataAdapter = new UploadDataAdapter(getActivity());
+        mUploadDataAdapter.open();
+
+
         return rootView;
     }
 

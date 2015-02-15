@@ -25,11 +25,12 @@ public class UploadAdapter extends BaseAdapter {
         mContext = context;
         // TODO: actually pull values from a database
         mUploads = new ArrayList<>();
-        mUploads.add(new Upload(0, "exported.pdf", "/", "956KB", "root", "01/01/2015"));
+        mUploads.add(new Upload(0, "exported.pdf", "/", "956KB", "root", "01/01/2015", "test@test.com"));
     }
 
     public void update() {
         // TODO: Pull new values from database
+
 
     }
 

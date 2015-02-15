@@ -79,6 +79,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     private Drive mService;
     private Menu mMenu;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

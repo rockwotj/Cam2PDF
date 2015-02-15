@@ -20,7 +20,6 @@ public class UploadDataAdapter {
     // We increment this every time we change the database schema which will
     // kick off an automatic upgrade
     private static final int DATABASE_VERSION = 1;
-    // TODO: Implement a SQLite database
 
     private SQLiteOpenHelper mOpenHelper;
     private SQLiteDatabase mDatabase;
@@ -31,6 +30,7 @@ public class UploadDataAdapter {
     static final String KEY_SIZE = "size";
     static final String KEY_PARENT = "parent";
     static final String KEY_DATE = "date";
+    static final String KEY_EMAIL = "email";
 
 
     public UploadDataAdapter(Context context) {
@@ -46,22 +46,21 @@ public class UploadDataAdapter {
         mDatabase.close();
     }
 
-    public long addTask(Upload upload) {
-        ContentValues row = getContentValuesFromScore(upload);
+    public long addUpload(Upload upload) {
+        ContentValues row = getContentValues(upload);
         long id = mDatabase.insert(TABLE_NAME, null, row);
         upload.setId(id);
         return id;
     }
 
-    private ContentValues getContentValuesFromScore(Upload upload) {
+    private ContentValues getContentValues(Upload upload) {
         ContentValues row = new ContentValues();
         row.put(KEY_NAME, upload.getName());
         row.put(KEY_PATH, upload.getPath());
         row.put(KEY_SIZE, upload.getSize());
         row.put(KEY_PARENT, upload.getParentFolder());
         row.put(KEY_DATE, upload.getCreationDate());
-
-
+        row.put(KEY_EMAIL, upload.getUploadersEmail());
         return row;
     }
 
@@ -76,8 +75,9 @@ public class UploadDataAdapter {
         String size = cursor.getString(cursor.getColumnIndexOrThrow(KEY_SIZE));
         String parent = cursor.getString(cursor.getColumnIndexOrThrow(KEY_PARENT));
         String date = cursor.getString(cursor.getColumnIndexOrThrow(KEY_DATE));
+        String email = cursor.getString(cursor.getColumnIndexOrThrow(KEY_EMAIL));
         Long id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_ID));
-        Upload upload = new Upload(id, name, path, size, parent, date);
+        Upload upload = new Upload(id, name, path, size, parent, date, email);
         return upload;
     }
 
@@ -107,7 +107,8 @@ public class UploadDataAdapter {
             sb.append(KEY_PATH + " text, ");
             sb.append(KEY_SIZE + " text, ");
             sb.append(KEY_PARENT + " text, ");
-            sb.append(KEY_DATE + " text");
+            sb.append(KEY_DATE + " text, ");
+            sb.append(KEY_EMAIL + " text");
             sb.append(");");
             CREATE_STATEMENT = sb.toString();
         }
@@ -118,18 +119,15 @@ public class UploadDataAdapter {
 
         public UploadDbHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
-            // TODO Auto-generated constructor stub
         }
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            // TODO Auto-generated method stub
             db.execSQL(CREATE_STATEMENT);
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            // TODO Auto-generated method stub
             db.execSQL(DROP_STATEMENT);
             db.execSQL(CREATE_STATEMENT);
         }

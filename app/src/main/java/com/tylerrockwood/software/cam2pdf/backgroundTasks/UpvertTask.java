@@ -27,11 +27,17 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.tylerrockwood.software.cam2pdf.ImageUtils;
 import com.tylerrockwood.software.cam2pdf.MainActivity;
 import com.tylerrockwood.software.cam2pdf.R;
+import com.tylerrockwood.software.cam2pdf.Upload;
+import com.tylerrockwood.software.cam2pdf.UploadDataAdapter;
+import com.tylerrockwood.software.cam2pdf.UploadsFragment;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 
 /**
  * Created by rockwotj on 2/8/2015.
@@ -46,6 +52,7 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
     private final Context mContext;
     private Notification.Builder mBuilder;
     private NotificationManager mNotifyMgr;
+
 
     public UpvertTask(Context context, Drive service, String filename, File folder) {
         this.mContext = context;
@@ -120,6 +127,17 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
                 File file = insert.execute();
                 Log.d("C2P", "File Id: " + file.getId());
                 // TODO: Save the file and metadata to a database
+
+                /* Database Code */
+                DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+                Date date = new Date();
+                Upload upload = new Upload(-1, mFilename, mService.getServicePath(), file.getFileSize().toString(), mFolder.toString(), format.format(date), mService.about().get().execute().getUser().getEmailAddress());
+                UploadDataAdapter mUploadDataAdapter = new UploadDataAdapter(mContext);
+                mUploadDataAdapter.open();
+                mUploadDataAdapter.addUpload(upload);
+                mUploadDataAdapter.close();
+                /* Database Code */
+
             } catch (UserRecoverableAuthIOException e) {
                 return e;
             }
