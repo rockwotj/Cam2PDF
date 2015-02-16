@@ -29,7 +29,6 @@ import com.tylerrockwood.software.cam2pdf.MainActivity;
 import com.tylerrockwood.software.cam2pdf.R;
 import com.tylerrockwood.software.cam2pdf.Upload;
 import com.tylerrockwood.software.cam2pdf.UploadDataAdapter;
-import com.tylerrockwood.software.cam2pdf.UploadsFragment;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -49,16 +48,18 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
     private final Drive mService;
     private final String mFilename;
     private final File mFolder;
+    private String mFolderPath;
     private final Context mContext;
     private Notification.Builder mBuilder;
     private NotificationManager mNotifyMgr;
 
 
-    public UpvertTask(Context context, Drive service, String filename, File folder) {
+    public UpvertTask(Context context, Drive service, String filename, File folder, String folderPath) {
         this.mContext = context;
         this.mService = service;
         this.mFilename = filename;
         this.mFolder = folder;
+        this.mFolderPath = folderPath;
     }
 
     @Override
@@ -131,7 +132,11 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
                 /* Database Code */
                 DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
                 Date date = new Date();
-                Upload upload = new Upload(-1, mFilename, mService.getServicePath(), file.getFileSize().toString(), mFolder.toString(), format.format(date), mService.about().get().execute().getUser().getEmailAddress());
+                //file.getFileSize().toString()
+                String parentFolder = mFolder != null ? mFolder.getId() : "root";
+                Long size = file.getFileSize();
+                String fileSizeString = humanReadableByteCount(size);
+                Upload upload = new Upload(-1, mFilename, mFolderPath, fileSizeString, parentFolder, format.format(date), mService.about().get().execute().getUser().getEmailAddress());
                 UploadDataAdapter mUploadDataAdapter = new UploadDataAdapter(mContext);
                 mUploadDataAdapter.open();
                 mUploadDataAdapter.addUpload(upload);
@@ -146,6 +151,22 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
             return e;
         }
         return null;
+    }
+
+
+    /**
+     * Taken from
+     * http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
+     *
+     * @param bytes
+     * @return number of byts in human readable format
+     */
+    private static String humanReadableByteCount(long bytes) {
+        int unit = 1024;
+        if (bytes < unit) return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = ("KMGTPE").charAt(exp - 1) + "i";
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
     @Override

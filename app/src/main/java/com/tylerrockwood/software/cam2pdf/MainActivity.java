@@ -244,8 +244,9 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String[] params = mPhotoPaths.toArray(new String[mPhotoPaths.size()]);
                         String filename = fileInput.getText().toString();
-                        File folder = adapter.getFileFromTitle(folderInput.getSelectedItem().toString());
-                        mUpvertTask = new UpvertTask(MainActivity.this, mService, filename, folder);
+                        String folderPath = folderInput.getSelectedItem().toString();
+                        File folder = adapter.getFileFromTitle(folderPath);
+                        mUpvertTask = new UpvertTask(MainActivity.this, mService, filename, folder, folderPath);
                         mUpvertTask.execute(params);
                     }
                 })
@@ -281,6 +282,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                         editor.putString(PREF_ACCOUNT_NAME, accountName);
                         editor.commit();
                         // TODO: update the UploadsFragment
+                        mSectionsPagerAdapter.updateUploadsFragment();
                     }
                 }
                 break;
@@ -306,6 +308,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
             chooseAccount();
         } else {
             // TODO: update the UploadsFragment
+            mSectionsPagerAdapter.updateUploadsFragment();
         }
     }
 
@@ -340,6 +343,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
         private CameraFragment mCurrentCameraFragment;
         private ImagesFragment mCurrentImagesFragment;
+        private UploadsFragment mCurrentUploadsFragment;
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -352,6 +356,8 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
         }
 
         public void updateUploadsFragment() {
+            if (mCurrentUploadsFragment != null)
+                mCurrentUploadsFragment.onRefresh();
         }
 
         @Override
@@ -359,7 +365,8 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
             // getItem is called to instantiate the fragment for the given page.
             switch (position) {
                 case 0:
-                    return new UploadsFragment();
+                    mCurrentUploadsFragment = new UploadsFragment();
+                    return mCurrentUploadsFragment;
                 case 1:
                     mCurrentCameraFragment = new CameraFragment();
                     return mCurrentCameraFragment;

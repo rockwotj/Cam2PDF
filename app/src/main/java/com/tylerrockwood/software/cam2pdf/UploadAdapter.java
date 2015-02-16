@@ -18,19 +18,28 @@ import java.util.List;
  */
 public class UploadAdapter extends BaseAdapter {
 
-    private final List<Upload> mUploads;
+    private final ArrayList<Upload> mUploads;
     private Context mContext;
+    protected UploadDataAdapter mUploadDataAdapter;
 
     public UploadAdapter(Context context) {
         mContext = context;
         // TODO: actually pull values from a database
-        mUploads = new ArrayList<>();
-        mUploads.add(new Upload(0, "exported.pdf", "/", "956KB", "root", "01/01/2015", "test@test.com"));
+        mUploadDataAdapter = new UploadDataAdapter(mContext);
+
+        mUploadDataAdapter.open();
+
+        mUploads = new ArrayList<Upload>();
+        mUploadDataAdapter.setAllUploads(mUploads);
+        mUploadDataAdapter.close();
+        //mUploads.add(new Upload(0, "exported.pdf", "/", "956KB", "root", "01/01/2015", "test@test.com"));
     }
 
     public void update() {
         // TODO: Pull new values from database
-
+        mUploadDataAdapter.open();
+        mUploadDataAdapter.setAllUploads(mUploads);
+        mUploadDataAdapter.close();
 
     }
 
