@@ -127,8 +127,6 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
                 uploader.setProgressListener(new FileProgressListener());
                 File file = insert.execute();
                 Log.d("C2P", "File Id: " + file.getId());
-                // TODO: Save the file and metadata to a database
-
                 /* Database Code */
                 DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
                 Date date = new Date();
@@ -159,7 +157,7 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
      * http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
      *
      * @param bytes
-     * @return number of byts in human readable format
+     * @return number of bytes in human readable format
      */
     private static String humanReadableByteCount(long bytes) {
         int unit = 1024;

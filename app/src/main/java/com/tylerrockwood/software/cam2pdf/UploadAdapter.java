@@ -1,8 +1,6 @@
 package com.tylerrockwood.software.cam2pdf;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +9,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 /**
  * Created by rockwotj on 2/11/2015.
@@ -21,18 +19,16 @@ public class UploadAdapter extends BaseAdapter {
     private final ArrayList<Upload> mUploads;
     private Context mContext;
     protected UploadDataAdapter mUploadDataAdapter;
+    private Upload mLastRemoved;
 
 
     public UploadAdapter(Context context) {
         mContext = context;
-        // TODO: actually pull values from a database
         mUploadDataAdapter = new UploadDataAdapter(mContext);
-        mUploads = new ArrayList<Upload>();
-        //mUploads.add(new Upload(0, "exported.pdf", "/", "956KB", "root", "01/01/2015", "test@test.com"));
+        mUploads = new ArrayList<>();
     }
 
     public void update(String email) {
-        // TODO: Pull new values from database
         mUploadDataAdapter.open();
         mUploadDataAdapter.setAllUploads(mUploads, email);
         mUploadDataAdapter.close();
@@ -44,8 +40,12 @@ public class UploadAdapter extends BaseAdapter {
         return mUploads.size();
     }
 
-    public void remove(Object item) {
-        mUploads.remove(item);
+    public void remove(int position) {
+        mLastRemoved = mUploads.remove(position);//mUploads.get(position);
+        mUploadDataAdapter.open();
+        mUploadDataAdapter.deleteUpload(mLastRemoved);
+        mUploadDataAdapter.close();
+
     }
 
     @Override
@@ -59,24 +59,16 @@ public class UploadAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
+    public View getView(int i, View view, final ViewGroup parent) {
         View v;
         if (view == null) {
-            v = LayoutInflater.from(mContext).inflate(R.layout.view_upload, viewGroup, false);
+            v = LayoutInflater.from(mContext).inflate(R.layout.view_upload, parent, false);
         } else {
             v = view;
         }
         final Upload upload = mUploads.get(i);
         TextView filename = (TextView) v.findViewById(R.id.filename);
         TextView date = (TextView) v.findViewById(R.id.date);
-        v.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(upload.toString()));
-                intent.setPackage("com.google.android.apps.docs");
-                mContext.startActivity(intent);
-            }
-        });
         final View infoButton = v.findViewById(R.id.info_button);
         infoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,4 +88,12 @@ public class UploadAdapter extends BaseAdapter {
     }
 
 
+    public void undo() {
+        mUploads.add(mLastRemoved);
+        mUploadDataAdapter.open();
+        mUploadDataAdapter.addUpload(mLastRemoved);
+        mUploadDataAdapter.close();
+        mLastRemoved = null;
+        Collections.sort(mUploads);
+    }
 }

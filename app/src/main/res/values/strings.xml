@@ -42,5 +42,7 @@
     <string name="folder_colon">"Folder: "</string>
     <string name="no_uploads">You haven\'t uploaded anything yet!</string>
     <string name="captured_images">Captured Images</string>
+    <string name="undo">UNDO</string>
+    <string name="removed">Removed</string>
 
 </resources>

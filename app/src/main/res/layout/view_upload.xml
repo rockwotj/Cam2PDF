@@ -2,6 +2,7 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:descendantFocusability="blocksDescendants"
     android:layout_height="72dp">
 
     <TextView
@@ -34,6 +35,8 @@
         android:layout_alignParentEnd="true"
         android:id="@+id/info_button"
         android:background="@null"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
         android:src="@drawable/ic_info"
         android:layout_width="72dp"
         android:layout_height="72dp" />

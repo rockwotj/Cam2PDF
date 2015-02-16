@@ -2,7 +2,6 @@ package com.tylerrockwood.software.cam2pdf;
 
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -21,6 +20,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
         int id = item.getItemId();
 
         if (id == R.id.action_delete) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
             builder.setTitle(R.string.delete);
             builder.setMessage(R.string.delete_message);
             builder.setNegativeButton(android.R.string.cancel, null);
@@ -106,7 +107,7 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
             mActionMode.setTitle(s);
         } else {
             final int i = index;
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
             builder.setTitle(R.string.delete_selected);
             builder.setMessage(R.string.delete_selected_message);
             builder.setNegativeButton(android.R.string.cancel, null);

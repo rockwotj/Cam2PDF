@@ -2,7 +2,6 @@ package com.tylerrockwood.software.cam2pdf;
 
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,6 +28,7 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -79,7 +79,6 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     private GoogleAccountCredential mCredential;
     private Drive mService;
     private Menu mMenu;
-    private String mEmail;
 
 
     @Override
@@ -200,9 +199,8 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     @Override
     public void onBackPressed() {
         if (mPhotoPaths.size() > 0) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(this);
             builder.setTitle(R.string.confirm_exit);
-            builder.setIcon(R.drawable.ic_alert);
             builder.setMessage(R.string.exit_message);
             builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
@@ -237,7 +235,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
         fileInput.setText("exported.pdf");
         final DriveFolderAdapter adapter = new DriveFolderAdapter(this, mService);
         folderInput.setAdapter(adapter);
-        new AlertDialog.Builder(this)
+        new AlertDialogWrapper.Builder(this)
                 .setTitle(getString(R.string.upvert_dialog_title))
                 .setView(v)
                 .setNegativeButton(android.R.string.cancel, null)
@@ -340,39 +338,12 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
     @Override
     public String getEmail() {
-        new GetEmail().execute();
-        return mEmail;
-    }
-
-    public void setEmail(String s) {
-        mEmail = s;
-    }
-
-    class GetEmail extends AsyncTask<Void, Void, String> {
-
-        @Override
-        protected String doInBackground(Void... params) {
-            String email = "email";
-            try {
-                email = mService.about().get().execute().getUser().getEmailAddress();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return email;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            if (s == null)
-                Log.d("C2P", "failed getting email");
-            else
-                setEmail(s);
-
-
+        try {
+            return mService.about().get().execute().getUser().getEmailAddress();
+        } catch (IOException e) {
+            return null;
         }
     }
-
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
