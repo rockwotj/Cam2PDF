@@ -39,13 +39,14 @@ import com.google.api.services.drive.model.File;
 import com.tylerrockwood.software.cam2pdf.backgroundTasks.SaveImageTask;
 import com.tylerrockwood.software.cam2pdf.backgroundTasks.UpvertTask;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
 
-public class MainActivity extends ActionBarActivity implements CameraFragment.PictureCallback, ImagesFragment.ImagesCallback, ViewPager.OnPageChangeListener {
+public class MainActivity extends ActionBarActivity implements CameraFragment.PictureCallback, ImagesFragment.ImagesCallback, ViewPager.OnPageChangeListener, UploadsFragment.UploadsCallback {
 
 
     private static final String PREF_ACCOUNT_NAME = "PREFS";
@@ -78,6 +79,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     private GoogleAccountCredential mCredential;
     private Drive mService;
     private Menu mMenu;
+    private String mEmail;
 
 
     @Override
@@ -332,6 +334,41 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
         super.onResume();
         if (checkGooglePlayServicesAvailable()) {
             haveGooglePlayServices();
+        }
+    }
+
+    @Override
+    public String getEmail() {
+        new GetEmail().execute();
+        return mEmail;
+    }
+
+    public void setEmail(String s) {
+        mEmail = s;
+    }
+
+    class GetEmail extends AsyncTask<Void, Void, String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+            String email = "email";
+            try {
+                email = mService.about().get().execute().getUser().getEmailAddress();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return email;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            if (s == null)
+                Log.d("C2P", "failed getting email");
+            else
+                setEmail(s);
+
+
         }
     }
 

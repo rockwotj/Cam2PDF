@@ -82,9 +82,10 @@ public class UploadDataAdapter {
     }
 
 
-    public void setAllUploads(ArrayList<Upload> uploads) {
+    public void setAllUploads(ArrayList<Upload> uploads, String email) {
         String[] columns = null;
-        Cursor cursor = mDatabase.query(TABLE_NAME, columns, null, null, null, null, null);
+        String whereClause = (email == null) ? null : KEY_EMAIL + "=" + "'" + email + "'";
+        Cursor cursor = mDatabase.query(TABLE_NAME, columns, whereClause, null, null, null, null);
         if (cursor == null || !cursor.moveToFirst()) {
             return;
         }

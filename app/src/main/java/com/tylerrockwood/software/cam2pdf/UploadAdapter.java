@@ -22,23 +22,19 @@ public class UploadAdapter extends BaseAdapter {
     private Context mContext;
     protected UploadDataAdapter mUploadDataAdapter;
 
+
     public UploadAdapter(Context context) {
         mContext = context;
         // TODO: actually pull values from a database
         mUploadDataAdapter = new UploadDataAdapter(mContext);
-
-        mUploadDataAdapter.open();
-
         mUploads = new ArrayList<Upload>();
-        mUploadDataAdapter.setAllUploads(mUploads);
-        mUploadDataAdapter.close();
         //mUploads.add(new Upload(0, "exported.pdf", "/", "956KB", "root", "01/01/2015", "test@test.com"));
     }
 
-    public void update() {
+    public void update(String email) {
         // TODO: Pull new values from database
         mUploadDataAdapter.open();
-        mUploadDataAdapter.setAllUploads(mUploads);
+        mUploadDataAdapter.setAllUploads(mUploads, email);
         mUploadDataAdapter.close();
 
     }

@@ -1,5 +1,6 @@
 package com.tylerrockwood.software.cam2pdf;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -20,7 +21,7 @@ public class UploadsFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private UploadAdapter mAdapter;
     private SwipeRefreshLayout mSwipeLayout;
     private View mEmptyView;
-    //protected UploadDataAdapter mUploadDataAdapter;
+    private UploadsCallback mCallBacks;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -38,7 +39,7 @@ public class UploadsFragment extends Fragment implements SwipeRefreshLayout.OnRe
         //mUploadDataAdapter = new UploadDataAdapter(getActivity());
         //mUploadDataAdapter.open();
 
-
+        mAdapter.update(mCallBacks.getEmail());
         return rootView;
     }
 
@@ -54,7 +55,7 @@ public class UploadsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 } catch (InterruptedException e) {
                     Log.d("C2P", "Background thread no sleep", e);
                 }
-                mAdapter.update();
+                mAdapter.update(mCallBacks.getEmail());
                 return null;
             }
 
@@ -66,4 +67,20 @@ public class UploadsFragment extends Fragment implements SwipeRefreshLayout.OnRe
         }.execute();
     }
 
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mCallBacks = (UploadsCallback) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement UploadsFragment.UploadsCallback");
+        }
+    }
+
+    //make interface, on attach, on detach set interface to null
+    public interface UploadsCallback {
+        public String getEmail();
+    }
 }
