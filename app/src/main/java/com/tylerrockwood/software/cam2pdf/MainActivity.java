@@ -259,6 +259,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        Log.d("C2P", "Returning from intent in Main Activity");
         switch (requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode == Activity.RESULT_OK) {
@@ -283,11 +284,12 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                         SharedPreferences.Editor editor = settings.edit();
                         editor.putString(PREF_ACCOUNT_NAME, accountName);
                         editor.commit();
-                        // TODO: update the UploadsFragment
                         mSectionsPagerAdapter.updateUploadsFragment();
                     }
                 }
                 break;
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -309,7 +311,6 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
             // ask user to choose account
             chooseAccount();
         } else {
-            // TODO: update the UploadsFragment
             mSectionsPagerAdapter.updateUploadsFragment();
         }
     }

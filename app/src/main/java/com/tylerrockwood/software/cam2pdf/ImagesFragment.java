@@ -145,8 +145,10 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("C2P", "Returning from intent in Images Fragment");
         if (requestCode == EDIT_PHOTO && resultCode == Activity.RESULT_OK) {
             File newest = getNewestFileInDirectory();
+            Log.d("C2P", "New file: " + newest.toString());
             mAdapter.updateIndex(mCurrentEditedIndex, newest);
         } else if (requestCode == PICK_PHOTO && resultCode == Activity.RESULT_OK) {
             Uri selectedImage = data.getData();
@@ -161,6 +163,7 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
             cursor.close();
             mAdapter.addItem(new File(filePath));
         } else {
+            Log.d("C2P", "RESULT_CANCELLED");
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
