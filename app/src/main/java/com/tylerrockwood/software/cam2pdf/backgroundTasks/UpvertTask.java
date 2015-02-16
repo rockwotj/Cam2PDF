@@ -139,8 +139,6 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
                 mUploadDataAdapter.open();
                 mUploadDataAdapter.addUpload(upload);
                 mUploadDataAdapter.close();
-                /* Database Code */
-
             } catch (UserRecoverableAuthIOException e) {
                 return e;
             }

@@ -2,6 +2,7 @@ package com.tylerrockwood.software.cam2pdf;
 
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -39,7 +40,6 @@ import com.google.api.services.drive.model.File;
 import com.tylerrockwood.software.cam2pdf.backgroundTasks.SaveImageTask;
 import com.tylerrockwood.software.cam2pdf.backgroundTasks.UpvertTask;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -79,6 +79,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     private GoogleAccountCredential mCredential;
     private Drive mService;
     private Menu mMenu;
+    private AlertDialog mDriveDialog;
 
 
     @Override
@@ -229,29 +230,30 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
 
     public void saveToDrive() {
-        View v = getLayoutInflater().inflate(R.layout.dialog_upvert, null);
-        final EditText fileInput = (EditText) v.findViewById(R.id.filenameInput);
-        final Spinner folderInput = (Spinner) v.findViewById(R.id.folderSpinner);
-        fileInput.setText("exported.pdf");
-        final DriveFolderAdapter adapter = new DriveFolderAdapter(this, mService);
-        folderInput.setAdapter(adapter);
-        new AlertDialogWrapper.Builder(this)
-                .setTitle(getString(R.string.upvert_dialog_title))
-                .setView(v)
-                .setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        String[] params = mPhotoPaths.toArray(new String[mPhotoPaths.size()]);
-                        String filename = fileInput.getText().toString();
-                        String folderPath = folderInput.getSelectedItem().toString();
-                        File folder = adapter.getFileFromTitle(folderPath);
-                        mUpvertTask = new UpvertTask(MainActivity.this, mService, filename, folder, folderPath);
-                        mUpvertTask.execute(params);
-                    }
-                })
-                .show();
-        fileInput.requestFocus();
+        if (mDriveDialog == null) {
+            View v = getLayoutInflater().inflate(R.layout.dialog_upvert, null);
+            final EditText fileInput = (EditText) v.findViewById(R.id.filenameInput);
+            final Spinner folderInput = (Spinner) v.findViewById(R.id.folderSpinner);
+            fileInput.setText("exported.pdf");
+            final DriveFolderAdapter adapter = new DriveFolderAdapter(this, mService);
+            folderInput.setAdapter(adapter);
+            mDriveDialog = new AlertDialogWrapper.Builder(this)
+                    .setTitle(getString(R.string.upvert_dialog_title))
+                    .setView(v)
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            String[] params = mPhotoPaths.toArray(new String[mPhotoPaths.size()]);
+                            String filename = fileInput.getText().toString();
+                            String folderPath = folderInput.getSelectedItem().toString();
+                            File folder = adapter.getFileFromTitle(folderPath);
+                            mUpvertTask = new UpvertTask(MainActivity.this, mService, filename, folder, folderPath);
+                            mUpvertTask.execute(params);
+                        }
+                    }).create();
+        }
+        mDriveDialog.show();
     }
 
 
@@ -338,12 +340,11 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
     @Override
     public String getEmail() {
-        try {
-            return mService.about().get().execute().getUser().getEmailAddress();
-        } catch (IOException e) {
-            return null;
-        }
+        String email = mCredential.getSelectedAccountName();
+        Log.d("C2P", "User email: " + email);
+        return email;
     }
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.

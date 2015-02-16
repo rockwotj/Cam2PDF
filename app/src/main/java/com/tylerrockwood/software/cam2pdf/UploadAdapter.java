@@ -2,6 +2,7 @@ package com.tylerrockwood.software.cam2pdf;
 
 import android.content.Context;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +17,7 @@ import java.util.Collections;
  */
 public class UploadAdapter extends BaseAdapter {
 
-    private final ArrayList<Upload> mUploads;
+    private ArrayList<Upload> mUploads;
     private Context mContext;
     protected UploadDataAdapter mUploadDataAdapter;
     private Upload mLastRemoved;
@@ -29,10 +30,10 @@ public class UploadAdapter extends BaseAdapter {
     }
 
     public void update(String email) {
+        Log.d("C2P", "Updating!");
         mUploadDataAdapter.open();
-        mUploadDataAdapter.setAllUploads(mUploads, email);
+        mUploads = mUploadDataAdapter.setAllUploads(email);
         mUploadDataAdapter.close();
-
     }
 
     @Override
@@ -41,11 +42,15 @@ public class UploadAdapter extends BaseAdapter {
     }
 
     public void remove(int position) {
-        mLastRemoved = mUploads.remove(position);//mUploads.get(position);
+        mLastRemoved = mUploads.remove(position);
         mUploadDataAdapter.open();
         mUploadDataAdapter.deleteUpload(mLastRemoved);
         mUploadDataAdapter.close();
 
+    }
+
+    public void clear() {
+        mUploads.clear();
     }
 
     @Override

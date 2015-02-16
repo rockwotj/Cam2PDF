@@ -82,18 +82,20 @@ public class UploadDataAdapter {
     }
 
 
-    public void setAllUploads(ArrayList<Upload> uploads, String email) {
+    public ArrayList<Upload> setAllUploads(String email) {
+        ArrayList<Upload> uploads = new ArrayList<>();
         String[] columns = null;
         String whereClause = (email == null) ? null : KEY_EMAIL + "=" + "'" + email + "'";
         Cursor cursor = mDatabase.query(TABLE_NAME, columns, whereClause, null, null, null, null);
         if (cursor == null || !cursor.moveToFirst()) {
-            return;
+            return null;
         }
         uploads.clear();
         do {
             uploads.add(getUploadFromCursor(cursor));
         } while (cursor.moveToNext());
         Collections.sort(uploads);
+        return uploads;
     }
 
     private static class UploadDbHelper extends SQLiteOpenHelper {
