@@ -22,7 +22,6 @@ public class UploadAdapter extends BaseAdapter {
     protected UploadDataAdapter mUploadDataAdapter;
     private Upload mLastRemoved;
 
-
     public UploadAdapter(Context context) {
         mContext = context;
         mUploadDataAdapter = new UploadDataAdapter(mContext);
@@ -33,6 +32,7 @@ public class UploadAdapter extends BaseAdapter {
         Log.d("C2P", "Updating!");
         mUploadDataAdapter.open();
         mUploads = mUploadDataAdapter.setAllUploads(email);
+        if (mUploads == null) mUploads = new ArrayList<>();
         mUploadDataAdapter.close();
     }
 
@@ -47,10 +47,6 @@ public class UploadAdapter extends BaseAdapter {
         mUploadDataAdapter.deleteUpload(mLastRemoved);
         mUploadDataAdapter.close();
 
-    }
-
-    public void clear() {
-        mUploads.clear();
     }
 
     @Override
@@ -80,8 +76,7 @@ public class UploadAdapter extends BaseAdapter {
             public void onClick(View view) {
                 PopupMenu popup = new PopupMenu(mContext, infoButton);
                 //Inflating the Popup using xml file
-                popup.getMenuInflater()
-                        .inflate(R.menu.upload_info_popup, popup.getMenu());
+                popup.getMenuInflater().inflate(R.menu.upload_info_popup, popup.getMenu());
                 popup.getMenu().getItem(0).setTitle(mContext.getResources().getString(R.string.folder_colon) + upload.getPath());
                 popup.getMenu().getItem(1).setTitle(mContext.getResources().getString(R.string.size) + upload.getSize());
                 popup.show();

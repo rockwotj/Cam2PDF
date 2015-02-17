@@ -44,5 +44,7 @@
     <string name="captured_images">Captured Images</string>
     <string name="undo">UNDO</string>
     <string name="removed">Removed</string>
+    <string name="capture_one">Please capture at least one image before uploading!</string>
+    <string name="no_images">No Images</string>
 
 </resources>

@@ -60,7 +60,7 @@ public class UploadDataAdapter {
         row.put(KEY_SIZE, upload.getSize());
         row.put(KEY_PARENT, upload.getParentFolder());
         row.put(KEY_DATE, upload.getCreationDate());
-        row.put(KEY_EMAIL, upload.getUploadersEmail());
+        row.put(KEY_EMAIL, upload.getUploaderEmail());
         return row;
     }
 

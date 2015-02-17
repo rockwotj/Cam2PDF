@@ -214,7 +214,16 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.upvert_button) {
-            mCallbacks.saveToDrive();
+            if (mPhotos.size() > 0) {
+                mCallbacks.saveToDrive();
+            } else {
+                AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
+                builder.setTitle(R.string.no_images);
+                builder.setMessage(R.string.capture_one);
+                builder.setPositiveButton(android.R.string.ok, null);
+
+                builder.show();
+            }
         }
     }
 
@@ -227,8 +236,6 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
     }
 
     private class ImagesFragmentActionModeCallback implements ActionMode.Callback {
-
-
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             mode.getMenuInflater().inflate(R.menu.context, menu);

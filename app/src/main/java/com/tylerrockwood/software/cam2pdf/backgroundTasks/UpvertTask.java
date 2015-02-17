@@ -117,9 +117,6 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
             body.setDescription(resources.getString(R.string.file_subject));
             body.setMimeType("application/pdf");
             try {
-                // You might want to grab the email Address for the database...
-                // That way if they switch accounts the data is per each account.
-                // mService.about().get().execute().getUser().getEmailAddress();
                 Drive.Files.Insert insert = mService.files().insert(body, mediaContent);
                 MediaHttpUploader uploader = insert.getMediaHttpUploader();
                 uploader.setDirectUploadEnabled(false);
@@ -127,14 +124,13 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
                 uploader.setProgressListener(new FileProgressListener());
                 File file = insert.execute();
                 Log.d("C2P", "File Id: " + file.getId());
-                /* Database Code */
                 DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
                 Date date = new Date();
-                //file.getFileSize().toString()
                 String parentFolder = mFolder != null ? mFolder.getId() : "root";
-                Long size = file.getFileSize();
+                long size = file.getFileSize();
                 String fileSizeString = humanReadableByteCount(size);
-                Upload upload = new Upload(-1, mFilename, mFolderPath, fileSizeString, parentFolder, format.format(date), mService.about().get().execute().getUser().getEmailAddress());
+                String userEmail = mService.about().get().execute().getUser().getEmailAddress();
+                Upload upload = new Upload(-1, mFilename, mFolderPath, fileSizeString, parentFolder, format.format(date), userEmail);
                 UploadDataAdapter mUploadDataAdapter = new UploadDataAdapter(mContext);
                 mUploadDataAdapter.open();
                 mUploadDataAdapter.addUpload(upload);
@@ -177,7 +173,7 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
             mBuilder.setContentTitle(mContext.getString(R.string.notification_complete));
             // Set clickable intent to Drive App
             String parentFolder = mFolder != null ? mFolder.getId() : "root";
-            Intent notifyIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://drive.google.com/open?id=" + parentFolder + "&authuser=0"));
+            Intent notifyIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://drive.google.com/open?id=" + parentFolder));
             notifyIntent.setPackage("com.google.android.apps.docs");
             mBuilder.setContentIntent(PendingIntent.getActivity(mContext, 1, notifyIntent, PendingIntent.FLAG_ONE_SHOT));
             mBuilder.setAutoCancel(true);

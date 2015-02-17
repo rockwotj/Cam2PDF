@@ -1,7 +1,5 @@
 package com.tylerrockwood.software.cam2pdf;
 
-import java.util.List;
-
 /**
  * Created by rockwotj on 2/10/2015.
  */
@@ -13,7 +11,7 @@ public class Upload implements Comparable<Upload> {
     private String mSize;
     private String mParentFolder;
     private String mCreationDate;
-    private String mUploadersEmail;
+    private String mUploaderEmail;
 
     public Upload(long id, String name, String path, String size, String parentFolder, String creationDate, String uploadersEmail) {
         this.mId = id;
@@ -22,7 +20,7 @@ public class Upload implements Comparable<Upload> {
         this.mSize = size;
         this.mParentFolder = parentFolder;
         this.mCreationDate = creationDate;
-        this.mUploadersEmail = uploadersEmail;
+        this.mUploaderEmail = uploadersEmail;
     }
 
     public String getCreationDate() {
@@ -43,7 +41,7 @@ public class Upload implements Comparable<Upload> {
 
     @Override
     public String toString() {
-        return "https://drive.google.com/open?id=" + mParentFolder + "&authuser=0";
+        return "https://drive.google.com/open?id=" + mParentFolder;
     }
 
     public void setId(long id) {
@@ -59,8 +57,8 @@ public class Upload implements Comparable<Upload> {
     }
 
 
-    public String getUploadersEmail() {
-        return mUploadersEmail;
+    public String getUploaderEmail() {
+        return mUploaderEmail;
     }
 
     @Override
