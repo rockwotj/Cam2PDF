@@ -67,7 +67,6 @@ public class DriveFolderAdapter extends ArrayAdapter {
             for (File f : list.getItems()) {
                 String newPath = path + f.getTitle() + "/";
                 folders.put(newPath, f);
-                new GetFoldersTask(f.getId(), newPath).execute();
             }
             return folders;
         }
