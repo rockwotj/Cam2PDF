@@ -110,14 +110,14 @@ public class ImagesFragment extends Fragment implements AdapterView.OnItemClickL
             AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
             builder.setTitle(R.string.delete_selected);
             builder.setMessage(R.string.delete_selected_message);
-            builder.setNegativeButton(android.R.string.cancel, null);
-            builder.setPositiveButton(R.string.delete_image, new DialogInterface.OnClickListener() {
+            builder.setNeutralButton(android.R.string.cancel, null);
+            builder.setNegativeButton(R.string.delete_image, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     mAdapter.deleteItem(i);
                 }
             });
-            builder.setNeutralButton(R.string.edit, new DialogInterface.OnClickListener() {
+            builder.setPositiveButton(R.string.edit, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     startEditIntent(i);
