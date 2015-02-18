@@ -44,8 +44,10 @@ import com.tylerrockwood.software.cam2pdf.backgroundTasks.UpvertTask;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 
 public class MainActivity extends ActionBarActivity implements CameraFragment.PictureCallback, ImagesFragment.ImagesCallback, ViewPager.OnPageChangeListener, UploadsFragment.UploadsCallback {
@@ -81,7 +83,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     private GoogleAccountCredential mCredential;
     private Drive mService;
     private Menu mMenu;
-    private AlertDialog mDriveDialog;
+    private Map<String, AlertDialog> mDriveDialogMap;
 
 
     @Override
@@ -116,6 +118,8 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                 .Builder(AndroidHttp.newCompatibleTransport(), new GsonFactory(), mCredential)
                 .setApplicationName(getString(R.string.app_name))
                 .build();
+
+        mDriveDialogMap = new HashMap<>();
     }
 
     @Override
@@ -250,14 +254,14 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
 
     public void saveToDrive() {
-        if (mDriveDialog == null) {
+        if (mDriveDialogMap.get(getEmail()) == null) {
             View v = getLayoutInflater().inflate(R.layout.dialog_upvert, null);
             final EditText fileInput = (EditText) v.findViewById(R.id.filenameInput);
             final Spinner folderInput = (Spinner) v.findViewById(R.id.folderSpinner);
             fileInput.setText("exported.pdf");
             final DriveFolderAdapter adapter = new DriveFolderAdapter(this, mService);
             folderInput.setAdapter(adapter);
-            mDriveDialog = new AlertDialogWrapper.Builder(this)
+            AlertDialog dialog = new AlertDialogWrapper.Builder(this)
                     .setTitle(getString(R.string.upvert_dialog_title))
                     .setView(v)
                     .setNegativeButton(android.R.string.cancel, null)
@@ -272,8 +276,9 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                             mUpvertTask.execute(params);
                         }
                     }).create();
+            mDriveDialogMap.put(getEmail(), dialog);
         }
-        mDriveDialog.show();
+        mDriveDialogMap.get(getEmail()).show();
     }
 
 
