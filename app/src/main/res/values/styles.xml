@@ -5,7 +5,13 @@
         <!-- Customize your theme here. -->
         <item name="windowActionBarOverlay">true</item>
         <item name="md_dark_theme">true</item>
+        <item name="actionModeBackground">@color/primary</item>
         <item name="colorAccent">@android:color/darker_gray</item>
         <!--<item name="md_content_color">@android:color/white</item>-->
     </style>
+
+    <style name="Widget.ActionMode" parent="AppTheme">
+        <item name="background">@color/primary</item>
+    </style>
+
 </resources>
