@@ -95,6 +95,18 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
         ImageUtils.noMediaScan(ALBUM_NAME);
         mPhotoPaths = new ArrayList<>();
         mThumbnails = new ArrayList<>();
+
+        // Google Accounts
+        mCredential = GoogleAccountCredential.usingOAuth2(this, Collections.singleton(DriveScopes.DRIVE));
+        SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
+        mCredential.setSelectedAccountName(settings.getString(PREF_ACCOUNT_NAME, null));
+        // Drive client
+        mService = new Drive
+                .Builder(AndroidHttp.newCompatibleTransport(), new GsonFactory(), mCredential)
+                .setApplicationName(getString(R.string.app_name))
+                .build();
+
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -109,15 +121,6 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
             mActionBar.hide();
             mActionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.primary)));
         }
-        // Google Accounts
-        mCredential = GoogleAccountCredential.usingOAuth2(this, Collections.singleton(DriveScopes.DRIVE));
-        SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
-        mCredential.setSelectedAccountName(settings.getString(PREF_ACCOUNT_NAME, null));
-        // Drive client
-        mService = new Drive
-                .Builder(AndroidHttp.newCompatibleTransport(), new GsonFactory(), mCredential)
-                .setApplicationName(getString(R.string.app_name))
-                .build();
 
         mDriveDialogMap = new HashMap<>();
     }

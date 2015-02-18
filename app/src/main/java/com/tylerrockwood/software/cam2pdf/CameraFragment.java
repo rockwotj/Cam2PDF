@@ -114,12 +114,11 @@ public class CameraFragment extends Fragment implements Camera.PictureCallback, 
         } catch (Exception e) {
             Log.d("C2P", "Camera not opened!");
         }
-        if (this.cameraView == null) {
-            this.cameraView = new SurfaceView(getActivity());
-            this.rootView.addView(cameraView, 0);
-            this.cameraPreview = cameraView.getHolder();
-            cameraPreview.addCallback(surfaceCallback);
-        }
+        // Don't check for null?
+        this.cameraView = new SurfaceView(getActivity());
+        this.rootView.addView(cameraView, 0);
+        this.cameraPreview = cameraView.getHolder();
+        cameraPreview.addCallback(surfaceCallback);
         startPreview();
     }
 
