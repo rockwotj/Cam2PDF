@@ -331,6 +331,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
 
                             @Override
                             protected void onPostExecute(UserRecoverableAuthIOException exception) {
+                                if (exception == null) return;
                                 Intent intent = exception.getIntent();
                                 MainActivity.this.startActivityForResult(intent, MainActivity.REQUEST_AUTHORIZATION);
                             }
