@@ -21,9 +21,11 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
@@ -119,7 +121,14 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        boolean hasMenuKey = ViewConfiguration.get(this).hasPermanentMenuKey();
+
+        if (!hasMenuKey) {
+            // Do whatever you need to do, this device has a navigation bar
+            getMenuInflater().inflate(R.menu.menu_main, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.menu_main_old, menu);
+        }
         mMenu = menu;
         return super.onCreateOptionsMenu(menu);
     }
@@ -132,6 +141,17 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
         }
         boolean result = this.mSectionsPagerAdapter.sendActionToCurrentFragment(item);
         return result || super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onKeyUp(int keycode, KeyEvent e) {
+        switch (keycode) {
+            case KeyEvent.KEYCODE_MENU:
+                if (mMenu != null) {
+                    mMenu.performIdentifierAction(R.id.menu_overflow, 0);
+                }
+        }
+        return super.onKeyUp(keycode, e);
     }
 
     @Override
