@@ -35,6 +35,7 @@ import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
@@ -42,6 +43,7 @@ import com.google.api.services.drive.model.File;
 import com.tylerrockwood.software.cam2pdf.backgroundTasks.SaveImageTask;
 import com.tylerrockwood.software.cam2pdf.backgroundTasks.UpvertTask;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -298,7 +300,7 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                 break;
             case REQUEST_AUTHORIZATION:
                 if (resultCode == Activity.RESULT_OK) {
-                    saveToDrive();
+                    // Do nothing?
                 } else {
                     chooseAccount();
                 }
@@ -313,6 +315,27 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                         editor.putString(PREF_ACCOUNT_NAME, accountName);
                         editor.commit();
                         mSectionsPagerAdapter.updateUploadsFragment();
+                        new AsyncTask<Void, Void, UserRecoverableAuthIOException>() {
+
+                            @Override
+                            protected UserRecoverableAuthIOException doInBackground(Void... voids) {
+                                try {
+                                    mService.about().get().execute().getUser().getEmailAddress();
+                                } catch (UserRecoverableAuthIOException e2) {
+                                    return e2;
+                                } catch (IOException e) {
+                                    Log.d("C2P", "AUTH?", e);
+                                }
+                                return null;
+                            }
+
+                            @Override
+                            protected void onPostExecute(UserRecoverableAuthIOException exception) {
+                                Intent intent = exception.getIntent();
+                                MainActivity.this.startActivityForResult(intent, MainActivity.REQUEST_AUTHORIZATION);
+                            }
+                        }.execute();
+
                     }
                 }
                 break;

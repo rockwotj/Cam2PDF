@@ -117,7 +117,6 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
             body.setDescription(resources.getString(R.string.file_subject));
             body.setMimeType("application/pdf");
             try {
-
                 Drive.Files.Insert insert = mService.files().insert(body, mediaContent);
                 MediaHttpUploader uploader = insert.getMediaHttpUploader();
                 uploader.setDirectUploadEnabled(false);
