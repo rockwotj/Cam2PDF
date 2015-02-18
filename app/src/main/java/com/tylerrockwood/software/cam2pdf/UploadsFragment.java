@@ -3,7 +3,6 @@ package com.tylerrockwood.software.cam2pdf;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -75,19 +74,9 @@ public class UploadsFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     @Override
     public void onRefresh() {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                mAdapter.update(mCallBacks.getEmail());
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                mAdapter.notifyDataSetChanged();
-                mSwipeLayout.setRefreshing(false);
-            }
-        }.execute();
+        mAdapter.update(mCallBacks.getEmail());
+        mAdapter.notifyDataSetChanged();
+        mSwipeLayout.setRefreshing(false);
     }
 
 
