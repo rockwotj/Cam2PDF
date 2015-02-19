@@ -336,7 +336,6 @@ public class MainActivity extends ActionBarActivity implements CameraFragment.Pi
                                 MainActivity.this.startActivityForResult(intent, MainActivity.REQUEST_AUTHORIZATION);
                             }
                         }.execute();
-
                     }
                 }
                 break;

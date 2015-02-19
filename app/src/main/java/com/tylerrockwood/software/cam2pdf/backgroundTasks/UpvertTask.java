@@ -1,6 +1,5 @@
 package com.tylerrockwood.software.cam2pdf.backgroundTasks;
 
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -12,7 +11,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.googleapis.media.MediaHttpUploader;
 import com.google.api.client.googleapis.media.MediaHttpUploaderProgressListener;
 import com.google.api.client.http.FileContent;
@@ -116,29 +114,25 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
             body.setTitle(mFilename);
             body.setDescription(resources.getString(R.string.file_subject));
             body.setMimeType("application/pdf");
-            try {
-                Drive.Files.Insert insert = mService.files().insert(body, mediaContent);
-                MediaHttpUploader uploader = insert.getMediaHttpUploader();
-                uploader.setDirectUploadEnabled(false);
-                uploader.setChunkSize(MediaHttpUploader.MINIMUM_CHUNK_SIZE);
-                uploader.setProgressListener(new FileProgressListener());
-                File file = insert.execute();
-                Log.d("C2P", "File Id: " + file.getId());
-                /* Database Code */
-                DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
-                Date date = new Date();
-                //file.getFileSize().toString()
-                String parentFolder = mFolder != null ? mFolder.getId() : "root";
-                Long size = file.getFileSize();
-                String fileSizeString = humanReadableByteCount(size);
-                Upload upload = new Upload(-1, mFilename, mFolderPath, fileSizeString, parentFolder, format.format(date), mService.about().get().execute().getUser().getEmailAddress());
-                UploadDataAdapter mUploadDataAdapter = new UploadDataAdapter(mContext);
-                mUploadDataAdapter.open();
-                mUploadDataAdapter.addUpload(upload);
-                mUploadDataAdapter.close();
-            } catch (UserRecoverableAuthIOException e) {
-                return e;
-            }
+            Drive.Files.Insert insert = mService.files().insert(body, mediaContent);
+            MediaHttpUploader uploader = insert.getMediaHttpUploader();
+            uploader.setDirectUploadEnabled(false);
+            uploader.setChunkSize(MediaHttpUploader.MINIMUM_CHUNK_SIZE);
+            uploader.setProgressListener(new FileProgressListener());
+            File file = insert.execute();
+            Log.d("C2P", "File Id: " + file.getId());
+            /* Database Code */
+            DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+            Date date = new Date();
+            //file.getFileSize().toString()
+            String parentFolder = mFolder != null ? mFolder.getId() : "root";
+            Long size = file.getFileSize();
+            String fileSizeString = humanReadableByteCount(size);
+            Upload upload = new Upload(-1, mFilename, mFolderPath, fileSizeString, parentFolder, format.format(date), mService.about().get().execute().getUser().getEmailAddress());
+            UploadDataAdapter mUploadDataAdapter = new UploadDataAdapter(mContext);
+            mUploadDataAdapter.open();
+            mUploadDataAdapter.addUpload(upload);
+            mUploadDataAdapter.close();
         } catch (Exception e) {
             Log.d("C2P", "ERROR", e);
             return e;
@@ -164,11 +158,7 @@ public class UpvertTask extends AsyncTask<String, Void, Exception> {
 
     @Override
     protected void onPostExecute(Exception exception) {
-        if (exception != null && exception instanceof UserRecoverableAuthIOException) {
-            Intent intent = ((UserRecoverableAuthIOException) exception).getIntent();
-            // Not a super big fan of this... but what else can we do?
-            ((Activity) mContext).startActivityForResult(intent, MainActivity.REQUEST_AUTHORIZATION);
-        } else if (exception != null) {
+        if (exception != null) {
             mBuilder.setContentTitle(mContext.getString(R.string.notification_error));
         } else {
             mBuilder.setContentTitle(mContext.getString(R.string.notification_complete));
